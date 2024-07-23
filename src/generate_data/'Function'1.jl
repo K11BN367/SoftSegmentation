@@ -1,0 +1,2 @@
+function generate_data end
+export generate_data

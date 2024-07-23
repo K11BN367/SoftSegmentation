@@ -1,0 +1,2 @@
+function rebuild_array_by_class end
+export rebuild_array_by_class
