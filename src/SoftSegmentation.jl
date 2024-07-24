@@ -11,6 +11,10 @@ module SoftSegmentation
     import SoftBase.:(<)
     import SoftBase.:(>=)
     import SoftBase.:(<=)
+    import SoftBase.size
+    import SoftBase.maximum
+    import SoftBase.minimum
+    
     using SoftRandom
     using SoftOptimisers
     using SoftLux
