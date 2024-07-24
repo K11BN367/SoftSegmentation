@@ -4,9 +4,9 @@ function hyperparameter_optimization(GLMakie, ColorSchemes, Julia_Worker_Array)
 
     figure = GLMakie.Figure(size = (1200, 800))
     GLMakie.display(figure)
-    Axis_Array = h__Array{GLMakie.Axis, 2}(array_size, 5)
-    Vector_Observable_Array = h__Array{GLMakie.Observable{Vector{Float32}}, 2}(array_size, 2)
-    Matrix_Observable_Array = h__Array{GLMakie.Observable{Matrix{Gray{Float32}}}, 2}(array_size, 4)
+    Axis_Array = c__Array{GLMakie.Axis, 2}(array_size, 5)
+    Vector_Observable_Array = c__Array{GLMakie.Observable{Vector{Float32}}, 2}(array_size, 2)
+    Matrix_Observable_Array = c__Array{GLMakie.Observable{Matrix{Gray{Float32}}}, 2}(array_size, 4)
     for index = 1:array_size
         Model_Grid_Layout = GLMakie.GridLayout(figure[1:6, (index * 4 + 3):(index * 4 + 6)])
         Input_Axis = GLMakie.Axis(Model_Grid_Layout[1:4, 1], aspect = 1, title = "Input")
@@ -75,9 +75,9 @@ function hyperparameter_optimization(GLMakie, ColorSchemes, Julia_Worker_Array)
         return value;
     end
     Index_Channel = Channel{Int64}(array_size)
-    Log_To_Consumer_Remote_Channel_Array = h__Array{RemoteChannel, 1}(array_size)
-    Data_To_Producer_Remote_Channel_Array = h__Array{RemoteChannel, 1}(array_size)
-    Data_To_Consumer_Remote_Channel_Array = h__Array{RemoteChannel, 1}(array_size)
+    Log_To_Consumer_Remote_Channel_Array = c__Array{RemoteChannel, 1}(array_size)
+    Data_To_Producer_Remote_Channel_Array = c__Array{RemoteChannel, 1}(array_size)
+    Data_To_Consumer_Remote_Channel_Array = c__Array{RemoteChannel, 1}(array_size)
     for index = 1:array_size
         put!(Index_Channel, index)
         Log_To_Consumer_Remote_Channel_Array[index] = RemoteChannel(
@@ -192,7 +192,7 @@ function hyperparameter_optimization(GLMakie, ColorSchemes, Julia_Worker_Array)
             array_size = 2
         end
         x_matrix = sample(array_size, minimum_normalized_parameter_vector, maximum_normalized_parameter_vector, sampling_algorithm)
-        y_vector = h__Array{Float64, 1}(array_size)
+        y_vector = c__Array{Float64, 1}(array_size)
         @sync begin
             for index = 1:array_size
                 @async y_vector[index] = f(x_matrix[index]...)
