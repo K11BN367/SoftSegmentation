@@ -19,15 +19,19 @@ function sample(Hyperparameter_Array_Length::Integer, Lower_Bound::T1, Upper_Bou
         #println(j)
         #println(Lower_Bound)
         #println(Upper_Bound)
+        plso(j)
         for i in 1:N
             Value = rand(Lower_Bound[i]:eps(eltype(T1)):Upper_Bound[i])
-            #println(Value)
+
             #println(Value)
             Index = argmin(abs.(Sample_Algorithm.Hyperparameter_Array_Tuple[i] .- Value))
             Random_Array[i] = Sample_Algorithm.Hyperparameter_Array_Tuple[i][Index]
+            plso(Random_Array[i])
         end
         #println(Random_Array)
         Hyperparameter_Array[:, j] = Random_Array
     end
+    plso("end")
+    plso(size(Hyperparameter_Array))
     return Hyperparameter_Array
 end

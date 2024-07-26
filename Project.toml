@@ -4,13 +4,18 @@ authors = ["K11BN367 <alexander592beckmann@gmail.com>"]
 version = "0.1.0"
 
 [deps]
+AbstractGPs = "99985d1d-32ba-4be9-9821-2ec096f28918"
 ColorSchemes = "35d6a980-a343-548e-a6ea-1d62b119f2f4"
 Colors = "5ae59095-9a9b-59fe-a467-6f913c188581"
 Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
+FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
 GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
+JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
 Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 SoftBase = "af0a1cfc-538f-4bb2-b0da-fbf558d56e16"
 SoftLux = "d42e847f-a626-42f1-ae57-4f9c06181514"
 SoftOptimisers = "768800b6-af41-427f-aca6-6c9b3ebc2520"
 SoftRandom = "b8c04a9d-53a0-48a9-ad30-96e9a8b69b86"
+Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 Surrogates = "6fc51010-71bc-11e9-0e15-a3fcc6593c49"
+SurrogatesAbstractGPs = "78aa1720-c2af-471b-b307-964fd38f9b5f"

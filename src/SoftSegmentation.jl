@@ -18,6 +18,8 @@ module SoftSegmentation
     using SoftRandom
     using SoftOptimisers
     using SoftLux
+    const Skip = SoftLux.Skip
+    const Infer = SoftLux.Infer
     
     import Surrogates
     import Colors
@@ -25,6 +27,22 @@ module SoftSegmentation
     import Colors.RGB
     import Distributed
     import Distributed.@spawnat
+    import Distributed.RemoteChannel
+    import FileIO
+    import FileIO.load
+    import FileIO.save
+    import JLD2
+    import AbstractGPs
+    import AbstractGPs.GaussianKernel
+    import AbstractGPs.GP
+    import SurrogatesAbstractGPs
+    import SurrogatesAbstractGPs.AbstractGPSurrogate
+    import Statistics
+    import Statistics.mean
+    import Statistics.cov
+    import Statistics.eigen
+    #using Zygote, Lux, Distributed, Functors, CUDA, Optimisers, Images, ImageTransformations, FileIO, JLD2, ColorTypes, LinearAlgebra, Statistics, Surrogates, SurrogatesAbstractGPs, AbstractGPs, Random, XLSX, MLUtils, LuxCUDA, LuxDeviceUtils, TypeUtils
+    #import InteractiveUtils
     #'Argument'Dependency'Function'Trait'1
     include!(SoftSegmentation, @c__URI(SoftBase.Directory, a__Path("agumentate_data/'Function'1.jl")))
     include!(SoftSegmentation, @c__URI(SoftBase.Directory, a__Path("compute_fiber_volume_fraction/'Function'1.jl")))

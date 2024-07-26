@@ -42,48 +42,49 @@ function neuralnetwork_definition(
     Factor,
     Kernel
     )
+    plso("neuralnetwork_definition")
     #=
     Kernel = a__Kernel(3, 3, Skip)
     Pad = a__Pad(1)
-    return h__Chain(
+    return c__Chain(
         a__Reduce_Structure(true),
         c__Convolution(Kernel, a__Input(input_model_array_size_tuple...), a__Output(Infer, Infer, 12), a__Activation_Function(relu), Pad),
         c__Convolution(Kernel, a__Output(Infer, Infer, 12), a__Activation_Function(relu), Pad),
-        h__Cat(
-            h__Chain(
-                h__MaxPool(a__Name(:Downsample_1), a__Window(2, 2, Skip), a__Stride(1, 1)),
-                h__Upsample(a__Name(:Upsample_1), a__Mode(:bilinear), a__Scale(0.5, 0.5, Skip)),
+        c__Cat(
+            c__Chain(
+                c__MaxPool(a__Name(:Downsample_1), a__Window(2, 2, Skip), a__Stride(1, 1)),
+                c__Upsample(a__Name(:Upsample_1), a__Mode(:bilinear), a__Scale(0.5, 0.5, Skip)),
                 c__Convolution(Kernel, a__Output(Infer, Infer, 18), a__Activation_Function(relu), Pad),
                 c__Convolution(Kernel, a__Output(Infer, Infer, 18), a__Activation_Function(relu), Pad),
-                h__Cat(
-                    h__Chain(
-                        h__MaxPool(a__Name(:Downsample_2), a__Window(2, 2, Skip), a__Stride(1, 1)),
-                        h__Upsample(a__Name(:Upsample_2), a__Mode(:bilinear), a__Scale(0.5, 0.5, Skip)),
+                c__Cat(
+                    c__Chain(
+                        c__MaxPool(a__Name(:Downsample_2), a__Window(2, 2, Skip), a__Stride(1, 1)),
+                        c__Upsample(a__Name(:Upsample_2), a__Mode(:bilinear), a__Scale(0.5, 0.5, Skip)),
                         c__Convolution(Kernel, a__Output(Infer, Infer, 24), a__Activation_Function(relu), Pad),
                         c__Convolution(Kernel, a__Output(Infer, Infer, 24), a__Activation_Function(relu), Pad),
-                        h__Cat(
-                            h__Chain(
-                                h__MaxPool(a__Name(:Downsample_3), a__Window(2, 2, Skip), a__Stride(1, 1)),
-                                h__Upsample(a__Name(:Upsample_3), a__Mode(:bilinear), a__Scale(0.5, 0.5, Skip)),
+                        c__Cat(
+                            c__Chain(
+                                c__MaxPool(a__Name(:Downsample_3), a__Window(2, 2, Skip), a__Stride(1, 1)),
+                                c__Upsample(a__Name(:Upsample_3), a__Mode(:bilinear), a__Scale(0.5, 0.5, Skip)),
                                 c__Convolution(Kernel, a__Output(Infer, Infer, 24), a__Activation_Function(relu), Pad),
                                 c__Convolution(Kernel, a__Output(Infer, Infer, 24), a__Activation_Function(relu), Pad),
-                                h__Upsample(a__Name(:Upsample_3), a__Mode(:bilinear), a__Scale(2, 2, Skip)),
+                                c__Upsample(a__Name(:Upsample_3), a__Mode(:bilinear), a__Scale(2, 2, Skip)),
                             ),
-                            h__Upsample(a__Name(:Skip_3), a__Mode(:bilinear), a__Scale(Infer, Infer, Skip)),
+                            c__Upsample(a__Name(:Skip_3), a__Mode(:bilinear), a__Scale(Infer, Infer, Skip)),
                             a__Dimension(3)
                         ),
                         c__Convolution(Kernel, a__Output(Infer, Infer, 36), a__Activation_Function(relu), Pad),
                         c__Convolution(Kernel, a__Output(Infer, Infer, 18), a__Activation_Function(relu), Pad),
-                        h__Upsample(a__Name(:Upsample_2), a__Mode(:bilinear), a__Scale(2, 2, Skip)),
+                        c__Upsample(a__Name(:Upsample_2), a__Mode(:bilinear), a__Scale(2, 2, Skip)),
                     ),
-                    h__Upsample(a__Name(:Skip_2), a__Mode(:bilinear), a__Scale(Infer, Infer, Skip)),
+                    c__Upsample(a__Name(:Skip_2), a__Mode(:bilinear), a__Scale(Infer, Infer, Skip)),
                     a__Dimension(3)
                 ),
                 c__Convolution(Kernel, a__Output(Infer, Infer, 24), a__Activation_Function(relu), Pad),
                 c__Convolution(Kernel, a__Output(Infer, Infer, 12), a__Activation_Function(relu), Pad),
-                h__Upsample(a__Name(:Upsample_1), a__Mode(:bilinear), a__Scale(2, 2, Skip)),
+                c__Upsample(a__Name(:Upsample_1), a__Mode(:bilinear), a__Scale(2, 2, Skip)),
             ),
-            h__Upsample(a__Name(:Skip_1), a__Mode(:bilinear), a__Scale(Infer, Infer, Skip)),
+            c__Upsample(a__Name(:Skip_1), a__Mode(:bilinear), a__Scale(Infer, Infer, Skip)),
             a__Dimension(3)
         ),
         c__Convolution(Kernel, a__Output(Infer, Infer, 18), a__Activation_Function(relu), Pad),
@@ -94,42 +95,42 @@ function neuralnetwork_definition(
     #=
     Kernel = a__Kernel(5, 5, Skip)
     Pad = a__Pad(2)
-    return h__Chain(
+    return c__Chain(
         a__Reduce_Structure(true),
         c__Convolution(Kernel, a__Input(input_model_array_size_tuple...), a__Output(Infer, Infer, 12), a__Activation_Function(relu), Pad),
         c__Convolution(Kernel, a__Output(Infer, Infer, 12), a__Activation_Function(relu), Pad),
-        h__Cat(
-            h__Chain(
-                h__MaxPool(a__Name(:Downsample_1), a__Window(2, 2, Skip)),
+        c__Cat(
+            c__Chain(
+                c__MaxPool(a__Name(:Downsample_1), a__Window(2, 2, Skip)),
                 c__Convolution(Kernel, a__Output(Infer, Infer, 18), a__Activation_Function(relu), Pad),
                 c__Convolution(Kernel, a__Output(Infer, Infer, 18), a__Activation_Function(relu), Pad),
-                h__Cat(
-                    h__Chain(
-                        h__MaxPool(a__Name(:Downsample_2), a__Window(2, 2, Skip)),
+                c__Cat(
+                    c__Chain(
+                        c__MaxPool(a__Name(:Downsample_2), a__Window(2, 2, Skip)),
                         c__Convolution(Kernel, a__Output(Infer, Infer, 24), a__Activation_Function(relu), Pad),
                         c__Convolution(Kernel, a__Output(Infer, Infer, 24), a__Activation_Function(relu), Pad),
-                        h__Cat(
-                            h__Chain(
-                                h__MaxPool(a__Name(:Downsample_3), a__Window(2, 2, Skip)),
+                        c__Cat(
+                            c__Chain(
+                                c__MaxPool(a__Name(:Downsample_3), a__Window(2, 2, Skip)),
                                 c__Convolution(Kernel, a__Output(Infer, Infer, 24), a__Activation_Function(relu), Pad),
                                 c__Convolution(Kernel, a__Output(Infer, Infer, 24), a__Activation_Function(relu), Pad),
-                                h__Upsample(a__Name(:Upsample_3), a__Mode(:bilinear), a__Scale(2, 2, Skip)),
+                                c__Upsample(a__Name(:Upsample_3), a__Mode(:bilinear), a__Scale(2, 2, Skip)),
                             ),
-                            h__Upsample(a__Name(:Skip_3), a__Mode(:bilinear), a__Scale(Infer, Infer, Skip)),
+                            c__Upsample(a__Name(:Skip_3), a__Mode(:bilinear), a__Scale(Infer, Infer, Skip)),
                             a__Dimension(3)
                         ),
                         c__Convolution(Kernel, a__Output(Infer, Infer, 36), a__Activation_Function(relu), Pad),
                         c__Convolution(Kernel, a__Output(Infer, Infer, 18), a__Activation_Function(relu), Pad),
-                        h__Upsample(a__Name(:Upsample_2), a__Mode(:bilinear), a__Scale(2, 2, Skip)),
+                        c__Upsample(a__Name(:Upsample_2), a__Mode(:bilinear), a__Scale(2, 2, Skip)),
                     ),
-                    h__Upsample(a__Name(:Skip_2), a__Mode(:bilinear), a__Scale(Infer, Infer, Skip)),
+                    c__Upsample(a__Name(:Skip_2), a__Mode(:bilinear), a__Scale(Infer, Infer, Skip)),
                     a__Dimension(3)
                 ),
                 c__Convolution(Kernel, a__Output(Infer, Infer, 24), a__Activation_Function(relu), Pad),
                 c__Convolution(Kernel, a__Output(Infer, Infer, 12), a__Activation_Function(relu), Pad),
-                h__Upsample(a__Name(:Upsample_1), a__Mode(:bilinear), a__Scale(2, 2, Skip)),
+                c__Upsample(a__Name(:Upsample_1), a__Mode(:bilinear), a__Scale(2, 2, Skip)),
             ),
-            h__Upsample(a__Name(:Skip_1), a__Mode(:bilinear), a__Scale(Infer, Infer, Skip)),
+            c__Upsample(a__Name(:Skip_1), a__Mode(:bilinear), a__Scale(Infer, Infer, Skip)),
             a__Dimension(3)
         ),
         c__Convolution(Kernel, a__Output(Infer, Infer, 18), a__Activation_Function(relu), Pad),
@@ -139,9 +140,10 @@ function neuralnetwork_definition(
     =#
     #Scale = 1 + rand()
 
-    Pad = a__Pad(Int((Kernel - 1) / 2))
+    Pad = a__Pad(v__Int64((Kernel - 1) / 2))
+    plso(Pad)
     Kernel = a__Kernel(Kernel, Kernel, Skip)
-
+    plso(Kernel)
     
     #Factor = 4
     Feature_Map = 6
@@ -154,34 +156,35 @@ function neuralnetwork_definition(
     function third_feature_map(Factor)::Int
         return second_feature_map(Factor) / 2
     end
-    Cat = h__Cat(
-        h__Chain(
-            h__MaxPool(a__Name(:Downsample_3), a__Window(2, 2, Skip), a__Stride(1, 1)),
-            h__Upsample(a__Name(:Upsample_3), a__Mode(:bilinear), a__Scale(1 / Scale, 1 / Scale, Skip)),
+    plso("feature_map")
+    Cat = c__Cat(
+        c__Chain(
+            c__MaxPool(a__Name(:Downsample_3), a__Window(2, 2, Skip), a__Stride(1, 1)),
+            c__Upsample(a__Name(:Upsample_3), a__Mode(:bilinear), a__Scale(1 / Scale, 1 / Scale, Skip)),
             c__Convolution(Kernel, a__Output(Infer, Infer, first_feature_map(Factor)), a__Activation_Function(relu), Pad),
             c__Convolution(Kernel, a__Output(Infer, Infer, first_feature_map(Factor)), a__Activation_Function(relu), Pad),
-            h__Upsample(a__Name(:Upsample_3), a__Mode(:bilinear), a__Scale(Infer, Infer, Skip)),
+            c__Upsample(a__Name(:Upsample_3), a__Mode(:bilinear), a__Scale(Infer, Infer, Skip)),
         ),
-        h__Nop(a__Name(:Skip_3)),
+        c__Nop(a__Name(:Skip_3)),
         a__Dimension(3)
     )
     for Factor = Factor:-1:1
-        Cat = h__Cat(
-            h__Chain(
-                h__MaxPool(a__Name(:Downsample_2), a__Window(2, 2, Skip), a__Stride(1, 1)),
-                h__Upsample(a__Name(:Upsample_2), a__Mode(:bilinear), a__Scale(1 / Scale, 1 / Scale, Skip)),
+        Cat = c__Cat(
+            c__Chain(
+                c__MaxPool(a__Name(:Downsample_2), a__Window(2, 2, Skip), a__Stride(1, 1)),
+                c__Upsample(a__Name(:Upsample_2), a__Mode(:bilinear), a__Scale(1 / Scale, 1 / Scale, Skip)),
                 c__Convolution(Kernel, a__Output(Infer, Infer, first_feature_map(Factor)), a__Activation_Function(relu), Pad),
                 c__Convolution(Kernel, a__Output(Infer, Infer, first_feature_map(Factor)), a__Activation_Function(relu), Pad),
                 Cat,
                 c__Convolution(Kernel, a__Output(Infer, Infer, second_feature_map(Factor)), a__Activation_Function(relu), Pad),
                 c__Convolution(Kernel, a__Output(Infer, Infer, third_feature_map(Factor)), a__Activation_Function(relu), Pad),
-                h__Upsample(a__Name(:Upsample_2), a__Mode(:bilinear), a__Scale(Infer, Infer, Skip)),
+                c__Upsample(a__Name(:Upsample_2), a__Mode(:bilinear), a__Scale(Infer, Infer, Skip)),
             ),
-            h__Nop(a__Name(:Skip_2)),
+            c__Nop(a__Name(:Skip_2)),
             a__Dimension(3)
         )
     end
-    Chain =  h__Chain(
+    Chain =  c__Chain(
         a__Reduce_Structure(false),
         c__Convolution(Kernel, a__Input(input_model_array_size_tuple...), a__Output(Infer, Infer, first_feature_map(0)), a__Activation_Function(relu), Pad),
         c__Convolution(Kernel, a__Output(Infer, Infer, first_feature_map(0)), a__Activation_Function(relu), Pad),
@@ -191,21 +194,32 @@ function neuralnetwork_definition(
         c__Convolution(Kernel, a__Output(output_model_array_size_tuple...), a__Activation_Function(sigmoid), Pad)
     )
     println(show_layer(Chain))
-    return h__Chain(a__Reduce_Structure(true), Chain.Layer_Tuple...)
+    Chain = c__Chain(Chain.Layer_Tuple..., a__Reduce_Structure(true))
+    plso(Chain)
+    return Chain
 end
 function neuralnetwork_setup(
     Model,
     learning_rate,
     Batch_array_size
     )
-    Parameters, State = Lux.setup(Random.default_rng(), Model)
-    Optimizer = Optimisers.setup(
+    plso("neuralnetwork_setup")
+    Parameters, State = setup(SoftRandom.Default_Random, Model)
+    plso("setup")
+    Optimizer = setup(
+        #=
         Optimisers.OptimiserChain(
             Optimisers.AccumGrad(Batch_array_size),
             Optimisers.Descent(learning_rate)
         ),
+        =#
+        c__Optimiser_Chain(
+            c__Gradient_Accumulation(Batch_array_size),
+            c__Descent(learning_rate)
+        ),
         Parameters
     )
+    partialsort
     return Parameters, State, Optimizer
 end
 function neuralnetwork_training(
@@ -219,27 +233,32 @@ function neuralnetwork_training(
     logger,
     Tuple...
     )
+    plso("neuralnetwork_training")
     Batch_array_size, iterations, factor, weight_1, weight_2, weight_3, Noise = Tuple
 
     image_angle = ()->(rand()*2*π)
     image_scale = ()->(1 - (0.5 - rand())*0.2)
     Image_Noise = ()->(rand() * Noise)
     Array_Size = round(Int64, Batch_array_size*factor)
-
+    plso("Array_Size")
     To_Producer_Channel_Array_Size = 0
     To_Producer_Channel_Array = Array{Channel{Bool}, 1}(undef, (To_Producer_Channel_Array_Size))
-    To_Consumer_Channel = Channel{e__Tuple{Int64, e__Tuple{Array{Float32, 4}, Array{Float32, 4}}}}(1)
-
+    pls("To_Producer_Channel_Array")
+    To_Consumer_Channel = Channel{v__Tuple{Int64, v__Tuple{Array{Float32, 4}, Array{Float32, 4}}}}(1)
+    plso("To_Consumer_Channel")
     Time = time()
     Evaluations = 0
     while true
         if isready(To_Consumer_Channel) == false
             push!(To_Producer_Channel_Array, Channel{Bool}(1))
+            plso("push!")
             To_Producer_Channel_Array_Size += 1
             put!(To_Producer_Channel_Array[To_Producer_Channel_Array_Size], true)
+            plso("put!")
             let To_Producer_Channel_Array = To_Producer_Channel_Array, To_Producer_Channel_Array_Size = To_Producer_Channel_Array_Size
                 Threads.@async(while true
                     if take!(To_Producer_Channel_Array[To_Producer_Channel_Array_Size]) == true
+                        pls("take!")
                         Task = Threads.@spawn(
                             generate_data_set(
                                 model_array_size_tuple,                      
@@ -250,10 +269,11 @@ function neuralnetwork_training(
                                 Image_Noise
                             )
                         )
-
+                        plso("generate_data_set")
                         input_model_array, output_model_array = fetch(Task)
-
+                        plso("fetch")
                         put!(To_Consumer_Channel, (To_Producer_Channel_Array_Size, (input_model_array, output_model_array)))
+                        pls("put!")
                     else
                         break
                     end
@@ -262,8 +282,9 @@ function neuralnetwork_training(
         end
         Array_Index, Data = take!(To_Consumer_Channel)
         put!(To_Producer_Channel_Array[Array_Index], true)
-
+        plso("put!")
         Macro_Dataloader = DataLoader(Data, batchsize = Batch_array_size, shuffle = false)
+        plso("DataLoader")
         for _2 = 1:iterations
             for (temp_input_model_array::Array{Float32, 4}, temp_output_model_array::Array{Float32, 4}) in Macro_Dataloader
                 Macro_Array_Size = size(temp_input_model_array)[4]
@@ -287,6 +308,7 @@ function neuralnetwork_training(
                 for (temp_input_model_array::Array{Float32, 4}, temp_output_model_array::Array{Float32, 4}) in Micro_Dataloader
                     gpu_temp_input_model_array = temp_input_model_array |> Device
                     gpu_temp_output_model_array = temp_output_model_array |> Device
+                    plso("pullback")
                     Error, Pullback = let Parameters = Parameters, State = State, Model = Model, gpu_temp_input_model_array = gpu_temp_input_model_array, gpu_temp_output_model_array = gpu_temp_output_model_array
                         Zygote.pullback(
                             (Parameters)->(
@@ -334,8 +356,12 @@ function hyperparameter_evaluation(
     logger,
     Tuple...
     )
+    plso(Tuple)
     learning_rate, Batch_array_size, iterations, factor, weight_1, weight_2, weight_3, Noise, Scale, Factor, Kernel = Tuple
-
+    Batch_array_size = round(v__Int64, Batch_array_size)
+    iterations = round(v__Int64, iterations)
+    #Factor = round(v__Int64, Factor)
+    #Kernel = round(v__Int64, Kernel)
     println("learning_rate: ", learning_rate)
     println("Batch_array_size: ", Batch_array_size)
     println("iterations: ", iterations)
@@ -364,6 +390,7 @@ function hyperparameter_evaluation(
             Factor,
             Kernel
         )
+        plso("neuralnetwork_definition")
         Parameters, State, Optimizer = neuralnetwork_setup(
             Model,
             learning_rate,
@@ -396,7 +423,7 @@ function hyperparameter_evaluation(
             image_size = size(validation_data[1])
             full_input_array_size_tuple = (image_size[1], image_size[2], input_model_array_size, 1)
             full_input_array = Array{Float32, 4}(undef, full_input_array_size_tuple)
-            full_input_array[:, :, :, 1] = convert_input(h__Array{Float32, 3}, validation_data[1], image_size)
+            full_input_array[:, :, :, 1] = convert_input(c__Array{Float32, 3}, validation_data[1], image_size)
             full_output_array_size_tuple = (image_size[1], image_size[2], output_model_array_size, 1)
             Optimization_Error += weighted_crossentropy_error(
                 function (full_input_array, Parameter, State)
@@ -419,7 +446,7 @@ function hyperparameter_evaluation(
                 1/0.03787878787878788,
                 1/0.15661901217172455,
                 full_input_array,
-                convert_output(h__Array{Float32, 3}, validation_data[2], image_size),
+                convert_output(c__Array{Float32, 3}, validation_data[2], image_size),
             )[1]
         end
         println("Error: ", Optimization_Error)
@@ -440,10 +467,10 @@ function hyperparameter_evaluation(
     CPU_Device = cpu_device()
     Index_Update = 0
     Index = 0
-    Image_Error_Array = h__Array{Float32, 1}()
-    Image_Image_Array = h__Array{Float32, 1}()
-    Batch_Error_Array = h__Array{Float32, 1}()
-    Batch_Image_Array = h__Array{Float32, 1}()
+    Image_Error_Array = c__Array{Float32, 1}()
+    Image_Image_Array = c__Array{Float32, 1}()
+    Batch_Error_Array = c__Array{Float32, 1}()
+    Batch_Image_Array = c__Array{Float32, 1}()
     logger = function (Error, Batch_array_size, Model, Parameters, State, input_array, target_output_array)
         Size = size(input_array)[4];
         for _ in 1:Size
@@ -458,23 +485,23 @@ function hyperparameter_evaluation(
 
         Index_Update = Index_Update + Size
         if Index_Update >= 1000
-            input_image = convert_input(h__Array{Gray{Float32}, 2}, input_array[:, :, :, 1] |> CPU_Device);
+            input_image = convert_input(c__Array{Gray{Float32}, 2}, input_array[:, :, :, 1] |> CPU_Device);
             current_output_array, State = Model(input_array[:, :, :, 1:1], Parameters, State)
             current_output_array = Lux.softmax(current_output_array, dims=3)
             current_output_array = current_output_array[:, :, :, 1] |> CPU_Device
             target_output_array = target_output_array[:, :, :, 1] |> CPU_Device
 
-            output_1_image = convert_output(h__Array{Gray{Float32}, 2}, current_output_array[:, :, 1]);
-            output_2_image = convert_output(h__Array{Gray{Float32}, 2}, current_output_array[:, :, 2]);
-            output_3_image = convert_output(h__Array{Gray{Float32}, 2}, current_output_array[:, :, 3]);
+            output_1_image = convert_output(c__Array{Gray{Float32}, 2}, current_output_array[:, :, 1]);
+            output_2_image = convert_output(c__Array{Gray{Float32}, 2}, current_output_array[:, :, 2]);
+            output_3_image = convert_output(c__Array{Gray{Float32}, 2}, current_output_array[:, :, 3]);
 
             #output_1_image = RGB{Float32}.(current_output_array[:, :, 1], target_output_array[:, :, 1], 0)
             #output_2_image = RGB{Float32}.(current_output_array[:, :, 2], target_output_array[:, :, 2], 0)
             #output_3_image = RGB{Float32}.(current_output_array[:, :, 3], target_output_array[:, :, 3], 0)
             
-            #output_1_image = convert_output(h__Array{Gray{Float32}, 2}, target_output_array[:, :, 1]);
-            #output_2_image = convert_output(h__Array{Gray{Float32}, 2}, target_output_array[:, :, 2]);
-            #output_3_image = convert_output(h__Array{Gray{Float32}, 2}, target_output_array[:, :, 3]);
+            #output_1_image = convert_output(c__Array{Gray{Float32}, 2}, target_output_array[:, :, 1]);
+            #output_2_image = convert_output(c__Array{Gray{Float32}, 2}, target_output_array[:, :, 2]);
+            #output_3_image = convert_output(c__Array{Gray{Float32}, 2}, target_output_array[:, :, 3]);
             if isready(Log_To_Consumer_Remote_Channel) == true
                 println("flush")
                 take!(Log_To_Consumer_Remote_Channel)
@@ -495,6 +522,7 @@ function hyperparameter_evaluation(
     end
     while true
         Data = take!(Data_To_Producer_Remote_Channel)
+        plso("hyperparameter_evaluation take")
         learning_rate, Batch_array_size, iterations, factor, weight_1, weight_2, weight_3, Noise, Scale, Factor, Kernel = Data
         Batch_array_size = round(Int64, Batch_array_size)
         iterations = round(Int64, iterations)
@@ -522,10 +550,10 @@ function hyperparameter_evaluation(
         )
         Index_Update = 0
         Index = 0
-        Image_Error_Array = h__Array{Float32, 1}()
-        Image_Image_Array = h__Array{Float32, 1}()
-        Batch_Error_Array = h__Array{Float32, 1}()
-        Batch_Image_Array = h__Array{Float32, 1}()
+        Image_Error_Array = c__Array{Float32, 1}()
+        Image_Image_Array = c__Array{Float32, 1}()
+        Batch_Error_Array = c__Array{Float32, 1}()
+        Batch_Image_Array = c__Array{Float32, 1}()
     end
 end
 function hyperparameter_evaluation(
@@ -597,7 +625,7 @@ function hyperparameter_evaluation(
     Log_To_Consumer_Remote_Channel = RemoteChannel(
         ()->(
             Channel{
-                e__Tuple{
+                v__Tuple{
                     Matrix{Gray{Float32}},
                     Matrix{Gray{Float32}},
                     Matrix{Gray{Float32}},
@@ -667,10 +695,10 @@ function hyperparameter_evaluation(
         CPU_Device = cpu_device()
         Index_Update = 0
         Index = 0
-        Image_Error_Array = h__Array{Float32, 1}()
-        Image_Image_Array = h__Array{Float32, 1}()
-        Batch_Error_Array = h__Array{Float32, 1}()
-        Batch_Image_Array = h__Array{Float32, 1}()
+        Image_Error_Array = c__Array{Float32, 1}()
+        Image_Image_Array = c__Array{Float32, 1}()
+        Batch_Error_Array = c__Array{Float32, 1}()
+        Batch_Image_Array = c__Array{Float32, 1}()
         logger = function (Error, Batch_array_size, Model, Parameters, State, input_array, target_output_array)
             Size = size(input_array)[4];
             for _ in 1:Size
@@ -685,23 +713,23 @@ function hyperparameter_evaluation(
 
             Index_Update = Index_Update + Size
             if Index_Update >= 1000
-                input_image = convert_input(h__Array{Gray{Float32}, 2}, input_array[:, :, :, 1] |> CPU_Device);
+                input_image = convert_input(c__Array{Gray{Float32}, 2}, input_array[:, :, :, 1] |> CPU_Device);
                 current_output_array, State = Model(input_array[:, :, :, 1:1], Parameters, State)
                 current_output_array = Lux.softmax(current_output_array, dims=3)
                 current_output_array = current_output_array[:, :, :, 1] |> CPU_Device
                 target_output_array = target_output_array[:, :, :, 1] |> CPU_Device
 
-                output_1_image = convert_output(h__Array{Gray{Float32}, 2}, current_output_array[:, :, 1]);
-                output_2_image = convert_output(h__Array{Gray{Float32}, 2}, current_output_array[:, :, 2]);
-                output_3_image = convert_output(h__Array{Gray{Float32}, 2}, current_output_array[:, :, 3]);
+                output_1_image = convert_output(c__Array{Gray{Float32}, 2}, current_output_array[:, :, 1]);
+                output_2_image = convert_output(c__Array{Gray{Float32}, 2}, current_output_array[:, :, 2]);
+                output_3_image = convert_output(c__Array{Gray{Float32}, 2}, current_output_array[:, :, 3]);
 
                 #output_1_image = RGB{Float32}.(current_output_array[:, :, 1], target_output_array[:, :, 1], 0)
                 #output_2_image = RGB{Float32}.(current_output_array[:, :, 2], target_output_array[:, :, 2], 0)
                 #output_3_image = RGB{Float32}.(current_output_array[:, :, 3], target_output_array[:, :, 3], 0)
                 
-                #output_1_image = convert_output(h__Array{Gray{Float32}, 2}, target_output_array[:, :, 1]);
-                #output_2_image = convert_output(h__Array{Gray{Float32}, 2}, target_output_array[:, :, 2]);
-                #output_3_image = convert_output(h__Array{Gray{Float32}, 2}, target_output_array[:, :, 3]);
+                #output_1_image = convert_output(c__Array{Gray{Float32}, 2}, target_output_array[:, :, 1]);
+                #output_2_image = convert_output(c__Array{Gray{Float32}, 2}, target_output_array[:, :, 2]);
+                #output_3_image = convert_output(c__Array{Gray{Float32}, 2}, target_output_array[:, :, 3]);
                 if isready(Log_To_Consumer_Remote_Channel) == true
                     take!(Log_To_Consumer_Remote_Channel)
                 end

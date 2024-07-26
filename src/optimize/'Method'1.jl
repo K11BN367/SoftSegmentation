@@ -1,4 +1,4 @@
-function optimize(
+function Surrogates.surrogate_optimize(
         obj::Function,
         ::OptimizationAlgorithm,
         lb, ub,
@@ -11,6 +11,7 @@ function optimize(
         dtol = 1e-3,
         num_new_points=1,
     )
+    plso("Optimization started")
     box_size = lb - ub
     w_range_length = length(w_range)
 
@@ -25,6 +26,7 @@ function optimize(
         adaptive_point_x_array = Array{Tuple{typeof(temp_surr.x[1]), typeof(temp_surr.y[1])}, 1}(undef, 0)
 
         for i = 1:num_new_points
+            plso("Iteration: ", i)
             return_w = ()->begin
                 w_range_index = rand(1:w_range_length)
                 w = w_range[w_range_index]
@@ -172,9 +174,10 @@ function optimize(
                 end
             end
         end
+        plso("Adaptive points: ", adaptive_point_x_array)
         return adaptive_point_x_array
     end)
-
+    
     to_consumer_channel = Channel{Tuple{typeof(surr.x[1]), typeof(surr.y[1])}}(num_new_points)
     adaptive_point_x_dict = Dict{typeof(surr.x[1]), typeof(surr.y[1])}()
     while true

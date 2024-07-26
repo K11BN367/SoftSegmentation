@@ -4,9 +4,9 @@ function hyperparameter_optimization(GLMakie, ColorSchemes, Julia_Worker_Array)
 
     figure = GLMakie.Figure(size = (1200, 800))
     GLMakie.display(figure)
-    Axis_Array = c__Array{GLMakie.Axis, 2}(array_size, 5)
-    Vector_Observable_Array = c__Array{GLMakie.Observable{Vector{Float32}}, 2}(array_size, 2)
-    Matrix_Observable_Array = c__Array{GLMakie.Observable{Matrix{Gray{Float32}}}, 2}(array_size, 4)
+    Axis_Array = c__Array{GLMakie.Axis, 2}(a__Size(array_size, 5))
+    Vector_Observable_Array = c__Array{GLMakie.Observable{Vector{Float32}}, 2}(a__Size(array_size, 2))
+    Matrix_Observable_Array = c__Array{GLMakie.Observable{Matrix{Gray{Float32}}}, 2}(a__Size(array_size, 4))
     for index = 1:array_size
         Model_Grid_Layout = GLMakie.GridLayout(figure[1:6, (index * 4 + 3):(index * 4 + 6)])
         Input_Axis = GLMakie.Axis(Model_Grid_Layout[1:4, 1], aspect = 1, title = "Input")
@@ -43,15 +43,15 @@ function hyperparameter_optimization(GLMakie, ColorSchemes, Julia_Worker_Array)
         GLMakie.scatter!(Error_Axis, Batch_Image_Observable, Batch_Error_Observable, color = GLMakie.RGBAf(0, 0, 1, 0.5), markersize = 5)
         Axis_Array[index, 5] = Error_Axis
 	end
-
-    Input_2_33 = load(joinpath(@__DIR__, "../Bilder/2_33/Training/700_Input.png"))
-    Output_2_33 = load(joinpath(@__DIR__, "../Bilder/2_33/Training/700_Output.png"))
-    Input_5_7 = load(joinpath(@__DIR__, "../Bilder/5_7/Training/580_Input.png"))
-    Output_5_7 = load(joinpath(@__DIR__, "../Bilder/5_7/Training/580_Output.png"))
-    Input_9_4 = load(joinpath(@__DIR__, "../Bilder/9_4/Training/701_Input.png"))
-    Output_9_4 = load(joinpath(@__DIR__, "../Bilder/9_4/Training/701_Output.png"))
-    Input_13_5 = load(joinpath(@__DIR__, "../Bilder/13_5/Training/742_Input.png"))
-    Output_13_5 = load(joinpath(@__DIR__, "../Bilder/13_5/Training/742_Output.png"))
+    Path = "//tfiler1.hochschule-trier.de/LAP/Lehre und Forschung/interne Projekte/Laborprojekte/Beckmann/Bilderkennung/FluxNeuralnetwork"
+    Input_2_33 = load(joinpath(Path, "../Bilder/2_33/Training/700_Input.png"))
+    Output_2_33 = load(joinpath(Path, "../Bilder/2_33/Training/700_Output.png"))
+    Input_5_7 = load(joinpath(Path, "../Bilder/5_7/Training/580_Input.png"))
+    Output_5_7 = load(joinpath(Path, "../Bilder/5_7/Training/580_Output.png"))
+    Input_9_4 = load(joinpath(Path, "../Bilder/9_4/Training/701_Input.png"))
+    Output_9_4 = load(joinpath(Path, "../Bilder/9_4/Training/701_Output.png"))
+    Input_13_5 = load(joinpath(Path, "../Bilder/13_5/Training/742_Input.png"))
+    Output_13_5 = load(joinpath(Path, "../Bilder/13_5/Training/742_Output.png"))
 
     training_data = ()->begin
         Rand = rand()
@@ -67,17 +67,117 @@ function hyperparameter_optimization(GLMakie, ColorSchemes, Julia_Worker_Array)
     end
     validation_data_tuple = ((Input_2_33, Output_2_33), (Input_5_7, Output_5_7), (Input_9_4, Output_9_4), (Input_13_5, Output_13_5))
 
+    #=
+    function hyperparameter_evaluation(
+    GPU_Device,
+    CPU_Device,
+    training_data,
+    validation_data_tuple,
+    logger,
+    Tuple...
+    )
+    =#
     f = function (Tuple...)
-        Index = take!(Index_Channel);
-        put!(Data_To_Producer_Remote_Channel_Array[Index], Tuple .* maximum_parameter_tuple);
-        value = take!(Data_To_Consumer_Remote_Channel_Array[Index]);
-        put!(Index_Channel, Index);
+        plso("f")
+        Array_Index = take!(Index_Channel);
+        plso("take 1")
+        println(Tuple...)
+        #put!(Data_To_Producer_Remote_Channel_Array[Index], Tuple .* maximum_parameter_tuple);+
+        #plso("put 1")
+        #value = take!(Data_To_Consumer_Remote_Channel_Array[Index]);
+        #plso("take 2")
+        f1 = ()->begin
+            plso("@spawnat")
+            GPU_Device = gpu_device()
+            plso("gpu_device")
+            CPU_Device = cpu_device()
+            plso("cpu_device")
+            Index_Update = 0
+            Index = 0
+            Image_Error_Array = c__Array{Float32, 1}()
+            Image_Image_Array = c__Array{Float32, 1}()
+            Batch_Error_Array = c__Array{Float32, 1}()
+            Batch_Image_Array = c__Array{Float32, 1}()
+            plso("arrays")
+            logger = function (Error, Batch_array_size, Model, Parameters, State, input_array, target_output_array)
+                Size = size(input_array)[4];
+                for _ in 1:Size
+                    Index = Index + 1;
+                    push!(Image_Error_Array, Error);
+                    push!(Image_Image_Array, Index);
+                    if Index % Batch_array_size == 0
+                        push!(Batch_Error_Array, sum(Image_Error_Array[(Index - Batch_array_size + 1):Index]) / Batch_array_size);
+                        push!(Batch_Image_Array, Index);
+                    end;
+                end
+        
+                Index_Update = Index_Update + Size
+                if Index_Update >= 1000
+                    input_image = convert_input(c__Array{Gray{Float32}, 2}, input_array[:, :, :, 1] |> CPU_Device);
+                    current_output_array, State = Model(input_array[:, :, :, 1:1], Parameters, State)
+                    current_output_array = Lux.softmax(current_output_array, dims=3)
+                    current_output_array = current_output_array[:, :, :, 1] |> CPU_Device
+                    target_output_array = target_output_array[:, :, :, 1] |> CPU_Device
+        
+                    output_1_image = convert_output(c__Array{Gray{Float32}, 2}, current_output_array[:, :, 1]);
+                    output_2_image = convert_output(c__Array{Gray{Float32}, 2}, current_output_array[:, :, 2]);
+                    output_3_image = convert_output(c__Array{Gray{Float32}, 2}, current_output_array[:, :, 3]);
+        
+                    #output_1_image = RGB{Float32}.(current_output_array[:, :, 1], target_output_array[:, :, 1], 0)
+                    #output_2_image = RGB{Float32}.(current_output_array[:, :, 2], target_output_array[:, :, 2], 0)
+                    #output_3_image = RGB{Float32}.(current_output_array[:, :, 3], target_output_array[:, :, 3], 0)
+                    
+                    #output_1_image = convert_output(c__Array{Gray{Float32}, 2}, target_output_array[:, :, 1]);
+                    #output_2_image = convert_output(c__Array{Gray{Float32}, 2}, target_output_array[:, :, 2]);
+                    #output_3_image = convert_output(c__Array{Gray{Float32}, 2}, target_output_array[:, :, 3]);
+                    if isready(Log_To_Consumer_Remote_Channel_Array[Array_Index]) == true
+                        println("flush")
+                        take!(Log_To_Consumer_Remote_Channel_Array[Array_Index])
+                    end
+                    put!(
+                        Log_To_Consumer_Remote_Channel_Array[Array_Index],
+                        (
+                            input_image,
+                            output_1_image,
+                            output_2_image,
+                            output_3_image,
+                            Batch_Error_Array,
+                            Batch_Image_Array
+                        )
+                    );
+                    Index_Update = 0;
+                end;
+            end
+            plso("logger")
+            plso(Tuple)
+            plso((Tuple .* maximum_parameter_tuple))
+            return hyperparameter_evaluation(
+                GPU_Device,
+                CPU_Device,
+                training_data,
+                validation_data_tuple,
+                logger,
+                (Tuple .* maximum_parameter_tuple)...
+            )
+        end
+        #=
+        value = @spawnat(
+            Julia_Worker_Array[Array_Index],
+            begin
+                f()
+            end
+        )
+        value = fetch(value)
+        =#
+        value = f1()
+        put!(Index_Channel, Array_Index);
+        plso("put 2")
         return value;
     end
     Index_Channel = Channel{Int64}(array_size)
-    Log_To_Consumer_Remote_Channel_Array = c__Array{RemoteChannel, 1}(array_size)
-    Data_To_Producer_Remote_Channel_Array = c__Array{RemoteChannel, 1}(array_size)
-    Data_To_Consumer_Remote_Channel_Array = c__Array{RemoteChannel, 1}(array_size)
+    Log_To_Consumer_Remote_Channel_Array = c__Array{RemoteChannel, 1}(a__Size(array_size))
+    Data_To_Producer_Remote_Channel_Array = c__Array{RemoteChannel, 1}(a__Size(array_size))
+    Data_To_Consumer_Remote_Channel_Array = c__Array{RemoteChannel, 1}(a__Size(array_size))
     for index = 1:array_size
         put!(Index_Channel, index)
         Log_To_Consumer_Remote_Channel_Array[index] = RemoteChannel(
@@ -109,6 +209,7 @@ function hyperparameter_optimization(GLMakie, ColorSchemes, Julia_Worker_Array)
                 }(1)
             )
         )
+        #=
         @spawnat(
             Julia_Worker_Array[index],
             hyperparameter_evaluation(
@@ -119,6 +220,7 @@ function hyperparameter_optimization(GLMakie, ColorSchemes, Julia_Worker_Array)
                 validation_data_tuple
             )
         )
+        =#
         #=
         @async begin
             hyperparameter_evaluation(Data_To_Producer_Remote_Channel_Array[index], Data_To_Consumer_Remote_Channel_Array[index], Log_To_Consumer_Remote_Channel_Array[index], training_data, validation_data)
@@ -148,9 +250,9 @@ function hyperparameter_optimization(GLMakie, ColorSchemes, Julia_Worker_Array)
     end
 
     local x_matrix, y_vector, parameter_tuple
-    load_data = true
+    load_data = false
     #Surrogate_String = "070320241_3"
-    Surrogate_String = "230320241"
+    Surrogate_String = "250720241"
     if load_data == false
         parameter_tuple = (
             [collect(LinRange{Float64}(10^(-0), 10^(-2), 20))...],
@@ -165,9 +267,11 @@ function hyperparameter_optimization(GLMakie, ColorSchemes, Julia_Worker_Array)
             [collect(2:1:4)...],
             [collect(3:2:5)...],
         )
-        save(joinpath(@__DIR__,  string("../Surrogate/parameter_Tuple_", Surrogate_String, ".jld2")), "parameter_Tuple", parameter_tuple)
+        plso("parameter_tuple")
+        plso(parameter_tuple)
+        save(joinpath(Path,  string("../Surrogate/parameter_Tuple_", Surrogate_String, ".jld2")), "parameter_Tuple", parameter_tuple)
     else
-        parameter_tuple = load(joinpath(@__DIR__,  string("../Surrogate/parameter_Tuple_", Surrogate_String, ".jld2")))["parameter_Tuple"]
+        parameter_tuple = load(joinpath(Path,  string("../Surrogate/parameter_Tuple_", Surrogate_String, ".jld2")))["parameter_Tuple"]
     end
     println(parameter_tuple)
     maximum_parameter_tuple = maximum.(parameter_tuple)
@@ -192,26 +296,31 @@ function hyperparameter_optimization(GLMakie, ColorSchemes, Julia_Worker_Array)
             array_size = 2
         end
         x_matrix = sample(array_size, minimum_normalized_parameter_vector, maximum_normalized_parameter_vector, sampling_algorithm)
-        y_vector = c__Array{Float64, 1}(array_size)
+        plso("x_matrix")
+        plso(x_matrix)
+        plso(size(x_matrix))
+        y_vector = c__Array{Float64, 1}(a__Size(array_size))
         @sync begin
             for index = 1:array_size
-                @async y_vector[index] = f(x_matrix[index]...)
+                println(x_matrix[:, index]...)
+                @async y_vector[index] = f(x_matrix[:, index]...)
             end
         end
     else
-        unnormalized_x_matrix = load(joinpath(@__DIR__, string("../Surrogate/x_matrix_", Surrogate_String, ".jld2")))["x_matrix"]
+        unnormalized_x_matrix = load(joinpath(Path, string("../Surrogate/x_matrix_", Surrogate_String, ".jld2")))["x_matrix"]
         x_matrix_size = size(unnormalized_x_matrix)
         T = Tuple{Vararg{Float64, x_matrix_size[1]}}
         x_matrix = Vector{T}(undef, x_matrix_size[2])
         for index = 1:x_matrix_size[2]
             x_matrix[index] = T(unnormalized_x_matrix[:, index] ./ maximum_parameter_tuple)
         end
-        y_vector = load(joinpath(@__DIR__, string("../Surrogate/y_vector_", Surrogate_String, ".jld2")))["y_vector"]
+        y_vector = load(joinpath(Path, string("../Surrogate/y_vector_", Surrogate_String, ".jld2")))["y_vector"]
     end
-
+    plso("x_matrix, y_vector")
     gaussian_process_surrogate = AbstractGPSurrogate(x_matrix, y_vector, gp=GP(GaussianKernel()))
+    plso("gaussian_process_surrogate")
     optimization_algorithm = OptimizationAlgorithm()
-
+    plso("optimization_algorithm")
     function get_values(gaussian_process_surrogate)
         matrix = reduce(hcat, collect.(gaussian_process_surrogate.x))
         return matrix, gaussian_process_surrogate.y
@@ -277,8 +386,8 @@ function hyperparameter_optimization(GLMakie, ColorSchemes, Julia_Worker_Array)
         x_matrix, y_vector = get_values(gaussian_process_surrogate)
 
         println("save start")
-        save(joinpath(@__DIR__, string("../Surrogate/x_matrix_", Surrogate_String, ".jld2")), "x_matrix", x_matrix .* maximum_parameter_tuple)
-        save(joinpath(@__DIR__, string("../Surrogate/y_vector_", Surrogate_String, ".jld2")), "y_vector", y_vector)
+        save(joinpath(Path, string("../Surrogate/x_matrix_", Surrogate_String, ".jld2")), "x_matrix", x_matrix .* maximum_parameter_tuple)
+        save(joinpath(Path, string("../Surrogate/y_vector_", Surrogate_String, ".jld2")), "y_vector", y_vector)
         println("save done")
         @async begin
         X1, X2, X3, Color_Array, Factor_Array, Factor_Array_Minimum, Factor_Array_Maximum, Values_Vector = prepare_values(gaussian_process_surrogate)
