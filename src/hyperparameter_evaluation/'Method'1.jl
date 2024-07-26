@@ -142,6 +142,7 @@ function neuralnetwork_definition(
 
     Pad = a__Pad(v__Int64((Kernel - 1) / 2))
     plso(Pad)
+    Kernel = v__Int64(Kernel)
     Kernel = a__Kernel(Kernel, Kernel, Skip)
     plso(Kernel)
     
@@ -219,7 +220,7 @@ function neuralnetwork_setup(
         ),
         Parameters
     )
-    partialsort
+
     return Parameters, State, Optimizer
 end
 function neuralnetwork_training(

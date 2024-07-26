@@ -43,6 +43,8 @@ function hyperparameter_optimization(GLMakie, ColorSchemes, Julia_Worker_Array)
         GLMakie.scatter!(Error_Axis, Batch_Image_Observable, Batch_Error_Observable, color = GLMakie.RGBAf(0, 0, 1, 0.5), markersize = 5)
         Axis_Array[index, 5] = Error_Axis
 	end
+    Path = "C:/Users/OsW-x/OneDrive/Desktop/Temp/SoftSegmentation"
+    #=
     Path = "//tfiler1.hochschule-trier.de/LAP/Lehre und Forschung/interne Projekte/Laborprojekte/Beckmann/Bilderkennung/FluxNeuralnetwork"
     Input_2_33 = load(joinpath(Path, "../Bilder/2_33/Training/700_Input.png"))
     Output_2_33 = load(joinpath(Path, "../Bilder/2_33/Training/700_Output.png"))
@@ -52,7 +54,7 @@ function hyperparameter_optimization(GLMakie, ColorSchemes, Julia_Worker_Array)
     Output_9_4 = load(joinpath(Path, "../Bilder/9_4/Training/701_Output.png"))
     Input_13_5 = load(joinpath(Path, "../Bilder/13_5/Training/742_Input.png"))
     Output_13_5 = load(joinpath(Path, "../Bilder/13_5/Training/742_Output.png"))
-
+    =#
     training_data = ()->begin
         Rand = rand()
         if Rand < 0.25
@@ -65,8 +67,8 @@ function hyperparameter_optimization(GLMakie, ColorSchemes, Julia_Worker_Array)
             return (Input_13_5, Output_13_5)
         end
     end
-    validation_data_tuple = ((Input_2_33, Output_2_33), (Input_5_7, Output_5_7), (Input_9_4, Output_9_4), (Input_13_5, Output_13_5))
-
+    #validation_data_tuple = ((Input_2_33, Output_2_33), (Input_5_7, Output_5_7), (Input_9_4, Output_9_4), (Input_13_5, Output_13_5))
+    validation_data_tuple=()
     #=
     function hyperparameter_evaluation(
     GPU_Device,
@@ -86,7 +88,7 @@ function hyperparameter_optimization(GLMakie, ColorSchemes, Julia_Worker_Array)
         #plso("put 1")
         #value = take!(Data_To_Consumer_Remote_Channel_Array[Index]);
         #plso("take 2")
-        f1 = ()->begin
+        f1 = function ()
             plso("@spawnat")
             GPU_Device = gpu_device()
             plso("gpu_device")
