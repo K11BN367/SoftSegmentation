@@ -1,6 +1,6 @@
 function crossentropy_error(Model, Parameters, State, input_model_array, output_model_array)
     predicted_output_model_array, State = Model(input_model_array, Parameters, State)
-    predicted_output_model_array = Lux.softmax(predicted_output_model_array, dims=3)
+    predicted_output_model_array = softmax(predicted_output_model_array, dims=3)
     return mean(sum(- output_model_array .* log.(predicted_output_model_array .+ eps(eltype(predicted_output_model_array))), dims=3)), State
 end
 function quadratic_error(Model, Parameters, State, input_model_array, output_model_array)
@@ -9,7 +9,7 @@ function quadratic_error(Model, Parameters, State, input_model_array, output_mod
 end
 function weighted_crossentropy_error(Model, Parameters, State, weight_1, weight_2, weight_3, input_model_array, output_model_array)
     predicted_output_model_array, State = Model(input_model_array, Parameters, State)
-    predicted_output_model_array = Lux.softmax(predicted_output_model_array, dims=3)
+    predicted_output_model_array = softmax(predicted_output_model_array, dims=3)
     error_array = - output_model_array .* log.(predicted_output_model_array .+ eps(eltype(predicted_output_model_array)))
 
     return mean(sum(cat(error_array[:, :, 1:1, :] * weight_1,
@@ -23,7 +23,7 @@ function weighted_crossentropy_error(Model, Parameters, State, weight_1, weight_
 end
 function weighted_focal_crossentropy_error(Model, Parameters, State, weight_1, weight_2, weight_3, input_model_array, output_model_array, gamma=2.0)
     predicted_output_model_array, State = Model(input_model_array, Parameters, State)
-    predicted_output_model_array = Lux.softmax(predicted_output_model_array, dims=3)
+    predicted_output_model_array = softmax(predicted_output_model_array, dims=3)
     error_array = - output_model_array .* log.(predicted_output_model_array .+ eps(eltype(predicted_output_model_array))) .* (1 .- predicted_output_model_array) .^ gamma
 
     return mean(sum(cat(error_array[:, :, 1:1, :] * weight_1,
@@ -42,7 +42,7 @@ function neuralnetwork_definition(
     Factor,
     Kernel
     )
-    plso("neuralnetwork_definition")
+    #plso("neuralnetwork_definition")
     #=
     Kernel = a__Kernel(3, 3, Skip)
     Pad = a__Pad(1)
@@ -141,10 +141,10 @@ function neuralnetwork_definition(
     #Scale = 1 + rand()
 
     Pad = a__Pad(v__Int64((Kernel - 1) / 2))
-    plso(Pad)
+    #plso(Pad)
     Kernel = v__Int64(Kernel)
     Kernel = a__Kernel(Kernel, Kernel, Skip)
-    plso(Kernel)
+    #plso(Kernel)
     
     #Factor = 4
     Feature_Map = 6
@@ -157,7 +157,9 @@ function neuralnetwork_definition(
     function third_feature_map(Factor)::Int
         return second_feature_map(Factor) / 2
     end
-    plso("feature_map")
+    #plso("feature_map")
+    #plso(input_model_array_size_tuple)
+    #plso(output_model_array_size_tuple)
     Cat = c__Cat(
         c__Chain(
             c__MaxPool(a__Name(:Downsample_3), a__Window(2, 2, Skip), a__Stride(1, 1)),
@@ -194,9 +196,10 @@ function neuralnetwork_definition(
         c__Convolution(Kernel, a__Output(Infer, Infer, third_feature_map(0)), a__Activation_Function(relu), Pad),
         c__Convolution(Kernel, a__Output(output_model_array_size_tuple...), a__Activation_Function(sigmoid), Pad)
     )
+    #plso
     println(show_layer(Chain))
     Chain = c__Chain(Chain.Layer_Tuple..., a__Reduce_Structure(true))
-    plso(Chain)
+    #plso(Chain)
     return Chain
 end
 function neuralnetwork_setup(
@@ -204,9 +207,9 @@ function neuralnetwork_setup(
     learning_rate,
     Batch_array_size
     )
-    plso("neuralnetwork_setup")
+    #plso("neuralnetwork_setup")
     Parameters, State = setup(SoftRandom.Default_Random, Model)
-    plso("setup")
+    #plso("setup")
     Optimizer = setup(
         #=
         Optimisers.OptimiserChain(
@@ -234,47 +237,62 @@ function neuralnetwork_training(
     logger,
     Tuple...
     )
-    plso("neuralnetwork_training")
+    #plso("neuralnetwork_training")
     Batch_array_size, iterations, factor, weight_1, weight_2, weight_3, Noise = Tuple
 
     image_angle = ()->(rand()*2*π)
     image_scale = ()->(1 - (0.5 - rand())*0.2)
     Image_Noise = ()->(rand() * Noise)
+    #plso(image_angle())
+    #plso(image_scale())
+    #plso(Image_Noise())
     Array_Size = round(Int64, Batch_array_size*factor)
-    plso("Array_Size")
+    #plso("Array_Size")
     To_Producer_Channel_Array_Size = 0
-    To_Producer_Channel_Array = Array{Channel{Bool}, 1}(undef, (To_Producer_Channel_Array_Size))
-    pls("To_Producer_Channel_Array")
-    To_Consumer_Channel = Channel{v__Tuple{Int64, v__Tuple{Array{Float32, 4}, Array{Float32, 4}}}}(1)
-    plso("To_Consumer_Channel")
+    To_Producer_Channel_Array = c__Array{Channel{Bool}, 1}(a__Size(To_Producer_Channel_Array_Size))
+    #plso("To_Producer_Channel_Array")
+    To_Consumer_Channel = Channel{v__Tuple{Int64, v__Tuple{v__Dynamic_Array{Float32, 4}, v__Dynamic_Array{Float32, 4}}}}(1)
+    #plso("To_Consumer_Channel")
     Time = time()
     Evaluations = 0
     while true
         if isready(To_Consumer_Channel) == false
             push!(To_Producer_Channel_Array, Channel{Bool}(1))
-            plso("push!")
+            #plso("push!")
             To_Producer_Channel_Array_Size += 1
             put!(To_Producer_Channel_Array[To_Producer_Channel_Array_Size], true)
-            plso("put!")
+            #plso("put!")
             let To_Producer_Channel_Array = To_Producer_Channel_Array, To_Producer_Channel_Array_Size = To_Producer_Channel_Array_Size
                 Threads.@async(while true
                     if take!(To_Producer_Channel_Array[To_Producer_Channel_Array_Size]) == true
-                        pls("take!")
+                        #plso("take!")
                         Task = Threads.@spawn(
-                            generate_data_set(
-                                model_array_size_tuple,                      
-                                Array_Size,
-                                training_data,
-                                image_angle,
-                                image_scale,
-                                Image_Noise
-                            )
+                            begin
+                                #plso(model_array_size_tuple)
+                                #plso(Array_Size)
+                                #plso(training_data)
+                                #plso(rand())
+                                #plso(image_angle())
+                                #plso(image_scale())
+                                #plso(Image_Noise())
+                                value = generate_data_set(
+                                    model_array_size_tuple,                      
+                                    Array_Size,
+                                    training_data,
+                                    image_angle,
+                                    image_scale,
+                                    Image_Noise
+                                )
+                                #plso(v__(value))
+                                return value
+
+                            end
                         )
-                        plso("generate_data_set")
+                        #plso("generate_data_set")
                         input_model_array, output_model_array = fetch(Task)
-                        plso("fetch")
+                        #plso("fetch")
                         put!(To_Consumer_Channel, (To_Producer_Channel_Array_Size, (input_model_array, output_model_array)))
-                        pls("put!")
+                        #plso("put!")
                     else
                         break
                     end
@@ -283,9 +301,10 @@ function neuralnetwork_training(
         end
         Array_Index, Data = take!(To_Consumer_Channel)
         put!(To_Producer_Channel_Array[Array_Index], true)
-        plso("put!")
-        Macro_Dataloader = DataLoader(Data, batchsize = Batch_array_size, shuffle = false)
-        plso("DataLoader")
+        #plso("put!")
+        #plso("DataLoader1")
+        Macro_Dataloader = DataLoader(Data, Batch_array_size)
+        #plso("DataLoader")
         for _2 = 1:iterations
             for (temp_input_model_array::Array{Float32, 4}, temp_output_model_array::Array{Float32, 4}) in Macro_Dataloader
                 Macro_Array_Size = size(temp_input_model_array)[4]
@@ -303,15 +322,17 @@ function neuralnetwork_training(
                 else
                     Gradient_Accumulation = Int(Macro_Array_Size / GPU_Array_Size)
                 end
-                Optimisers.adjust!(Optimizer, n=Gradient_Accumulation)
+                adjust!(Optimizer, n=Gradient_Accumulation)
 
-                Micro_Dataloader = DataLoader((temp_input_model_array, temp_output_model_array), batchsize = GPU_Array_Size, shuffle = false)
+                Micro_Dataloader = DataLoader((temp_input_model_array, temp_output_model_array), GPU_Array_Size)
                 for (temp_input_model_array::Array{Float32, 4}, temp_output_model_array::Array{Float32, 4}) in Micro_Dataloader
                     gpu_temp_input_model_array = temp_input_model_array |> Device
                     gpu_temp_output_model_array = temp_output_model_array |> Device
-                    plso("pullback")
+                    #plso("pullback")
+                    #plso(v__(gpu_temp_input_model_array), " ", size(gpu_temp_input_model_array))
+                    #plso(v__(gpu_temp_output_model_array), " ", size(gpu_temp_output_model_array))
                     Error, Pullback = let Parameters = Parameters, State = State, Model = Model, gpu_temp_input_model_array = gpu_temp_input_model_array, gpu_temp_output_model_array = gpu_temp_output_model_array
-                        Zygote.pullback(
+                        pullback(
                             (Parameters)->(
                                 weighted_crossentropy_error(
                                     Model, 
@@ -330,7 +351,7 @@ function neuralnetwork_training(
                     end
                     Gradients = only(Pullback(Error))
 
-                    Optimisers.update!(Optimizer, Parameters, Gradients)
+                    update!(Optimizer, Parameters, Gradients)
 
                     logger(Error, Batch_array_size, Model, Parameters, State, gpu_temp_input_model_array, gpu_temp_output_model_array)
                 end
@@ -357,12 +378,14 @@ function hyperparameter_evaluation(
     logger,
     Tuple...
     )
-    plso(Tuple)
+    #plso(Tuple)
     learning_rate, Batch_array_size, iterations, factor, weight_1, weight_2, weight_3, Noise, Scale, Factor, Kernel = Tuple
     Batch_array_size = round(v__Int64, Batch_array_size)
     iterations = round(v__Int64, iterations)
     #Factor = round(v__Int64, Factor)
     #Kernel = round(v__Int64, Kernel)
+    iterations = 1
+    factor = 1
     println("learning_rate: ", learning_rate)
     println("Batch_array_size: ", Batch_array_size)
     println("iterations: ", iterations)
@@ -384,6 +407,8 @@ function hyperparameter_evaluation(
 
 
     while true
+        #plso(input_model_array_size_tuple)
+        #plso(output_model_array_size_tuple)
         Model = neuralnetwork_definition(
             input_model_array_size_tuple,
             output_model_array_size_tuple,
@@ -391,7 +416,7 @@ function hyperparameter_evaluation(
             Factor,
             Kernel
         )
-        plso("neuralnetwork_definition")
+        #plso("neuralnetwork_definition")
         Parameters, State, Optimizer = neuralnetwork_setup(
             Model,
             learning_rate,
@@ -422,14 +447,19 @@ function hyperparameter_evaluation(
         Optimization_Error = 0
         for validation_data in validation_data_tuple
             image_size = size(validation_data[1])
+            #plso("validation_data")
             full_input_array_size_tuple = (image_size[1], image_size[2], input_model_array_size, 1)
+            #plso(full_input_array_size_tuple)
             full_input_array = Array{Float32, 4}(undef, full_input_array_size_tuple)
-            full_input_array[:, :, :, 1] = convert_input(c__Array{Float32, 3}, validation_data[1], image_size)
+            #plso("full_input_array")
+            full_input_array[:, :, :, 1] = convert_input(v__Dynamic_Array{Float32, 3}, validation_data[1], image_size)
+            #plso("convert_input")
             full_output_array_size_tuple = (image_size[1], image_size[2], output_model_array_size, 1)
+            #plso("full_output_array_size_tuple")
             Optimization_Error += weighted_crossentropy_error(
                 function (full_input_array, Parameter, State)
                     full_output_array = inference_sweep(
-                        (input_model_array)->(Lux.softmax(Model(input_model_array, Parameter, State)[1], dims=3)),
+                        (input_model_array)->(softmax(Model(input_model_array, Parameter, State)[1], dims=3)),
                         input_model_array_size_tuple,
                         full_input_array,
                         full_input_array_size_tuple,
@@ -447,7 +477,7 @@ function hyperparameter_evaluation(
                 1/0.03787878787878788,
                 1/0.15661901217172455,
                 full_input_array,
-                convert_output(c__Array{Float32, 3}, validation_data[2], image_size),
+                convert_output(v__Dynamic_Array{Float32, 3}, validation_data[2], image_size),
             )[1]
         end
         println("Error: ", Optimization_Error)
@@ -485,10 +515,10 @@ function hyperparameter_evaluation(
         end
 
         Index_Update = Index_Update + Size
-        if Index_Update >= 1000
+        if Index_Update >= 100
             input_image = convert_input(c__Array{Gray{Float32}, 2}, input_array[:, :, :, 1] |> CPU_Device);
             current_output_array, State = Model(input_array[:, :, :, 1:1], Parameters, State)
-            current_output_array = Lux.softmax(current_output_array, dims=3)
+            current_output_array = softmax(current_output_array, dims=3)
             current_output_array = current_output_array[:, :, :, 1] |> CPU_Device
             target_output_array = target_output_array[:, :, :, 1] |> CPU_Device
 
@@ -523,7 +553,7 @@ function hyperparameter_evaluation(
     end
     while true
         Data = take!(Data_To_Producer_Remote_Channel)
-        plso("hyperparameter_evaluation take")
+        #plso("hyperparameter_evaluation take")
         learning_rate, Batch_array_size, iterations, factor, weight_1, weight_2, weight_3, Noise, Scale, Factor, Kernel = Data
         Batch_array_size = round(Int64, Batch_array_size)
         iterations = round(Int64, iterations)
@@ -716,7 +746,7 @@ function hyperparameter_evaluation(
             if Index_Update >= 1000
                 input_image = convert_input(c__Array{Gray{Float32}, 2}, input_array[:, :, :, 1] |> CPU_Device);
                 current_output_array, State = Model(input_array[:, :, :, 1:1], Parameters, State)
-                current_output_array = Lux.softmax(current_output_array, dims=3)
+                current_output_array = softmax(current_output_array, dims=3)
                 current_output_array = current_output_array[:, :, :, 1] |> CPU_Device
                 target_output_array = target_output_array[:, :, :, 1] |> CPU_Device
 

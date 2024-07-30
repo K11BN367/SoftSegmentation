@@ -1,4 +1,5 @@
-function project_onto_principal_components(matrix::Array{T, 2}, matrix_size, eigen_direction_matrix, mean_vector) where {T}
+function project_onto_principal_components(matrix, matrix_size, eigen_direction_matrix, mean_vector)
+    T = eltype(matrix)
     matrix = matrix .- mean_vector
     projected_matrix = Matrix{T}(undef, (3, matrix_size))
     for index = 1:matrix_size

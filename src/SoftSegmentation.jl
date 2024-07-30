@@ -25,9 +25,11 @@ module SoftSegmentation
     import Colors
     import Colors.Gray
     import Colors.RGB
+    import Colors.N0f8
     import Distributed
     import Distributed.@spawnat
     import Distributed.RemoteChannel
+    import Distributed.Channel
     import FileIO
     import FileIO.load
     import FileIO.save
@@ -41,8 +43,11 @@ module SoftSegmentation
     import Statistics.mean
     import Statistics.cov
     import Statistics.eigen
-    #using Zygote, Lux, Distributed, Functors, CUDA, Optimisers, Images, ImageTransformations, FileIO, JLD2, ColorTypes, LinearAlgebra, Statistics, Surrogates, SurrogatesAbstractGPs, AbstractGPs, Random, XLSX, MLUtils, LuxCUDA, LuxDeviceUtils, TypeUtils
-    #import InteractiveUtils
+    import Images
+    import DataLoaders
+    import DataLoaders.DataLoader
+    import CUDA
+
     #'Argument'Dependency'Function'Trait'1
     include!(SoftSegmentation, @c__URI(SoftBase.Directory, a__Path("agumentate_data/'Function'1.jl")))
     include!(SoftSegmentation, @c__URI(SoftBase.Directory, a__Path("compute_fiber_volume_fraction/'Function'1.jl")))
@@ -76,4 +81,8 @@ module SoftSegmentation
     include!(SoftSegmentation, @c__URI(SoftBase.Directory, a__Path("rebuild_array_by_threshold/'Method'1.jl")))
     include!(SoftSegmentation, @c__URI(SoftBase.Directory, a__Path("sample/'Method'1.jl")))
     #'Global'1
+
+    include!(SoftSegmentation, @c__URI(SoftBase.Directory, a__Path("inference_batch.jl")))
+    include!(SoftSegmentation, @c__URI(SoftBase.Directory, a__Path("inference_set.jl")))
+    include!(SoftSegmentation, @c__URI(SoftBase.Directory, a__Path("inference_sweep.jl")))
 end
