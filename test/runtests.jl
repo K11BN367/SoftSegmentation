@@ -9,6 +9,22 @@ Julia_Worker_Array = addprocs(
     ]
 )
 =#
+try
+    Distributed.rmprocs([Julia_Worker_1])
+    println("proc 1 removed")
+catch end
+try
+    Distributed.rmprocs([Julia_Worker_2])
+    println("proc 2 removed")
+catch end
+try
+    Distributed.rmprocs([Julia_Worker_3])
+    println("proc 3 removed")
+catch end
+
+Julia_Worker_Array = []
+Env_Array = ["JULIA_NUM_THREADS" => "auto"]
+
 
 ##########################################################################################
 #=
@@ -19,12 +35,14 @@ Julia_Worker_Array = addprocs(
     Pkg.add(url="https://github.com/K11BN367/SoftOptimisers")
     Pkg.add(url="https://github.com/K11BN367/SoftLux")
     Pkg.add(url="https://github.com/K11BN367/SoftSegmentation")
+    Pkg.add("Colors")
+    Pkg.add("ColorSchemes")
 end)
 =#
 ##########################################################################################
 Julia_Worker_Array_Size = size(Julia_Worker_Array)[1]
-
 using FileIO
+@everywhere(begin
 using SoftLux
 using SoftBase
 import SoftBase.:(+)
@@ -41,14 +59,15 @@ import SoftBase.:(<=)
 import SoftBase.size
 import SoftBase.maximum
 import SoftBase.minimum
-@everywhere using SoftSegmentation
-
-import GLMakie
+using SoftSegmentation
 import Colors
 import Colors.Gray
 import Colors.RGB
 import Colors.N0f8
 import ColorSchemes
+end)
+
+import GLMakie
 
 figure = GLMakie.Figure(size = (1200, 800))
 GLMakie.display(figure)
@@ -154,6 +173,8 @@ end
 validation_data_tuple = ((Input_2_33, Output_2_33), (Input_5_7, Output_5_7), (Input_9_4, Output_9_4), (Input_13_5, Output_13_5))
 execute_user_remote_workload = function (Array_Index, Tuple)
     GPU_Device = gpu_device()
+    plso("gpu_device")
+    plso(GPU_Device)
     CPU_Device = cpu_device()
     Index_Update = 0
     Index = 0
@@ -219,7 +240,7 @@ execute_user_remote_workload = function (Array_Index, Tuple)
         Tuple...
     )
 end
-load_data = false
+load_data = true
 Surrogate_String = "300720241"
 
 function initialize_parameters()
