@@ -38,6 +38,8 @@ function hyperparameter_optimization(Julia_Worker_Array, execute_user_remote_wor
         y_vector = Tuple[3]
         load_data = true
     end
+    plso("parameter_tuple")
+    plso(v__(parameter_tuple))
     maximum_parameter_tuple = maximum.(parameter_tuple)
     normalized_parameter_tuple = parameter_tuple ./ maximum_parameter_tuple
     maximum_normalized_parameter_vector::Vector{Float64} = [maximum.(normalized_parameter_tuple)...]

@@ -1,5 +1,6 @@
 using Distributed
-
+using FileIO
+import GLMakie
 #=
 Julia_Worker_Array = addprocs(
     1,
@@ -26,48 +27,88 @@ Julia_Worker_Array = []
 Env_Array = ["JULIA_NUM_THREADS" => "auto"]
 
 
+Julia_Worker_1 = addprocs(
+    ["Julia_Worker@143.93.62.171"],
+    shell=:wincmd,
+    exename="C:/Users/Julia_Worker/AppData/Local/Programs/Julia-1.10.0/bin/julia.exe",
+    dir="C:/Users/Julia_Worker",
+    env=[
+        Env_Array...,
+        "JULIA_CUDA_HARD_MEMORY_LIMIT" => "90%"
+    ],
+    #sshflags="-vvv"
+)[1]
+push!(Julia_Worker_Array, Julia_Worker_1)
+println("proc 1 added ", Julia_Worker_1)
+
+Julia_Worker_2 = addprocs(
+    ["Julia_Worker@143.93.52.28"],             
+    shell=:wincmd,
+    exename="C:/Users/Julia_Worker/AppData/Local/Programs/Julia-1.10.0/bin/julia.exe",
+    dir="C:/Users/Julia_Worker",       
+    env=[
+        Env_Array...,              
+        "JULIA_CUDA_HARD_MEMORY_LIMIT" => "90%"
+    ],
+    #sshflags="-vvv"
+)[1]
+push!(Julia_Worker_Array, Julia_Worker_2)
+println("proc 2 added ", Julia_Worker_2)
+
+
+Julia_Worker_3 = addprocs(
+    1,
+    env=[
+        Env_Array...,
+        "JULIA_CUDA_HARD_MEMORY_LIMIT" => "90%"
+    ]
+)[1]
+push!(Julia_Worker_Array, Julia_Worker_3)
+println("proc 3 added ", Julia_Worker_3)
 ##########################################################################################
 #=
 @everywhere(begin
     import Pkg
-    Pkg.add(url="https://github.com/K11BN367/SoftBase")
-    Pkg.add(url="https://github.com/K11BN367/SoftRandom")
-    Pkg.add(url="https://github.com/K11BN367/SoftOptimisers")
-    Pkg.add(url="https://github.com/K11BN367/SoftLux")
-    Pkg.add(url="https://github.com/K11BN367/SoftSegmentation")
+    Pkg.develop(url="https://github.com/K11BN367/SoftBase")
+    Pkg.develop(url="https://github.com/K11BN367/SoftRandom")
+    Pkg.develop(url="https://github.com/K11BN367/SoftOptimisers")
+    Pkg.develop(url="https://github.com/K11BN367/SoftLux")
+    Pkg.develop(url="https://github.com/K11BN367/SoftSegmentation")
     Pkg.add("Colors")
     Pkg.add("ColorSchemes")
+end)
+@everywhere(begin
+    import Pkg
+    Pkg.update()
+    Pkg.gc()
 end)
 =#
 ##########################################################################################
 Julia_Worker_Array_Size = size(Julia_Worker_Array)[1]
-using FileIO
 @everywhere(begin
-using SoftLux
-using SoftBase
-import SoftBase.:(+)
-import SoftBase.:(-)
-import SoftBase.:(*)
-import SoftBase.:(/)
-import SoftBase.:(^)
-import SoftBase.:(==)
-import SoftBase.:(!=)
-import SoftBase.:(>)
-import SoftBase.:(<)
-import SoftBase.:(>=)
-import SoftBase.:(<=)
-import SoftBase.size
-import SoftBase.maximum
-import SoftBase.minimum
-using SoftSegmentation
-import Colors
-import Colors.Gray
-import Colors.RGB
-import Colors.N0f8
-import ColorSchemes
+    using SoftLux
+    using SoftBase
+    import SoftBase.:(+)
+    import SoftBase.:(-)
+    import SoftBase.:(*)
+    import SoftBase.:(/)
+    import SoftBase.:(^)
+    import SoftBase.:(==)
+    import SoftBase.:(!=)
+    import SoftBase.:(>)
+    import SoftBase.:(<)
+    import SoftBase.:(>=)
+    import SoftBase.:(<=)
+    import SoftBase.size
+    import SoftBase.maximum
+    import SoftBase.minimum
+    using SoftSegmentation
+    import Colors
+    import Colors.Gray
+    import Colors.RGB
+    import Colors.N0f8
+    import ColorSchemes
 end)
-
-import GLMakie
 
 figure = GLMakie.Figure(size = (1200, 800))
 GLMakie.display(figure)
@@ -260,10 +301,15 @@ function initialize_parameters()
         )
         plso("parameter_tuple")
         plso(parameter_tuple)
+        plso(v__(parameter_tuple))
         save(joinpath(Path,  string("../Surrogate/parameter_Tuple_", Surrogate_String, ".jld2")), "parameter_Tuple", parameter_tuple)
         return false, parameter_tuple
     else
         parameter_tuple = load(joinpath(Path,  string("../Surrogate/parameter_Tuple_", Surrogate_String, ".jld2")))["parameter_Tuple"]
+        
+        plso("parameter_tuple")
+        plso(parameter_tuple)
+        plso(v__(parameter_tuple))
         unnormalized_x_matrix = load(joinpath(Path, string("../Surrogate/x_matrix_", Surrogate_String, ".jld2")))["x_matrix"]
         y_vector = load(joinpath(Path, string("../Surrogate/y_vector_", Surrogate_String, ".jld2")))["y_vector"]
         return true, parameter_tuple, unnormalized_x_matrix, y_vector
