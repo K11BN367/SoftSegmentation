@@ -1,12 +1,27 @@
 using Distributed
 
+#=
 Julia_Worker_Array = addprocs(
     1,
     env=[
         "JULIA_NUM_THREADS" => "auto",
-        "JULIA_CUDA_HARD_MEMORY_LIMIT" => "75%"
+        "JULIA_CUDA_HARD_MEMORY_LIMIT" => "90%"
     ]
 )
+=#
+
+##########################################################################################
+#=
+@everywhere(begin
+    import Pkg
+    Pkg.add(url="https://github.com/K11BN367/SoftBase")
+    Pkg.add(url="https://github.com/K11BN367/SoftRandom")
+    Pkg.add(url="https://github.com/K11BN367/SoftOptimisers")
+    Pkg.add(url="https://github.com/K11BN367/SoftLux")
+    Pkg.add(url="https://github.com/K11BN367/SoftSegmentation")
+end)
+=#
+##########################################################################################
 Julia_Worker_Array_Size = size(Julia_Worker_Array)[1]
 
 using FileIO
@@ -159,7 +174,7 @@ execute_user_remote_workload = function (Array_Index, Tuple)
         end
 
         Index_Update = Index_Update + Size
-        if Index_Update >= 100
+        if Index_Update >= 1000
             input_image = SoftSegmentation.convert_input(v__Dynamic_Array{Gray{Float32}, 2}, input_array[:, :, :, 1] |> CPU_Device);
             current_output_array, State = Model(input_array[:, :, :, 1:1], Parameters, State)
             current_output_array = softmax(current_output_array, dims=3)
@@ -273,7 +288,6 @@ Factor_Array = c__Array{Float32, 1}(a__Size(1))
 Factor_Array_Minimum = 0
 Factor_Array_Maximum = 1
 Values_Vector = c__Array{Float32, 1}(a__Size(11))
-0
 X1_Array_Observable = GLMakie.Observable(X1)
 X2_Array_Observable = GLMakie.Observable(X2)
 X3_Array_Observable = GLMakie.Observable(X3)

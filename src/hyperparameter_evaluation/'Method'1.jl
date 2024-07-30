@@ -384,8 +384,8 @@ function hyperparameter_evaluation(
     iterations = round(v__Int64, iterations)
     #Factor = round(v__Int64, Factor)
     #Kernel = round(v__Int64, Kernel)
-    iterations = 1
-    factor = 1
+    #iterations = 1
+    #factor = 1
     println("learning_rate: ", learning_rate)
     println("Batch_array_size: ", Batch_array_size)
     println("iterations: ", iterations)

@@ -7,14 +7,14 @@ function hyperparameter_optimization(Julia_Worker_Array, execute_user_remote_wor
         Array_Index = take!(Index_Channel);
         plso(Array_Index)
         
-        #=
+        
         value = @spawnat(
             Julia_Worker_Array[Array_Index],
             execute_user_remote_workload(Array_Index, Tuple .* maximum_parameter_tuple)
         )
         value = fetch(value)
-        =#
-        value = execute_user_remote_workload(Array_Index, Tuple .* maximum_parameter_tuple)
+        
+        #value = execute_user_remote_workload(Array_Index, Tuple .* maximum_parameter_tuple)
         put!(Index_Channel, Array_Index);
         return value;
     end
