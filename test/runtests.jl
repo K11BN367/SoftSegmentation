@@ -69,11 +69,11 @@ println("proc 3 added ", Julia_Worker_3)
 #=
 @everywhere(begin
     import Pkg
-    Pkg.develop(url="https://github.com/K11BN367/SoftBase")
-    Pkg.develop(url="https://github.com/K11BN367/SoftRandom")
-    Pkg.develop(url="https://github.com/K11BN367/SoftOptimisers")
-    Pkg.develop(url="https://github.com/K11BN367/SoftLux")
-    Pkg.develop(url="https://github.com/K11BN367/SoftSegmentation")
+    Pkg.add(url="https://github.com/K11BN367/SoftBase")
+    Pkg.add(url="https://github.com/K11BN367/SoftRandom")
+    Pkg.add(url="https://github.com/K11BN367/SoftOptimisers")
+    Pkg.add(url="https://github.com/K11BN367/SoftLux")
+    Pkg.add(url="https://github.com/K11BN367/SoftSegmentation")
     Pkg.add("Colors")
     Pkg.add("ColorSchemes")
 end)
