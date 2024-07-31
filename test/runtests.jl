@@ -34,7 +34,7 @@ Julia_Worker_1 = addprocs(
     dir="C:/Users/Julia_Worker",
     env=[
         Env_Array...,
-        "JULIA_CUDA_HARD_MEMORY_LIMIT" => "90%"
+        "JULIA_CUDA_HARD_MEMORY_LIMIT" => "80%"
     ],
     #sshflags="-vvv"
 )[1]
@@ -48,7 +48,7 @@ Julia_Worker_2 = addprocs(
     dir="C:/Users/Julia_Worker",       
     env=[
         Env_Array...,              
-        "JULIA_CUDA_HARD_MEMORY_LIMIT" => "90%"
+        "JULIA_CUDA_HARD_MEMORY_LIMIT" => "80%"
     ],
     #sshflags="-vvv"
 )[1]
@@ -60,11 +60,13 @@ Julia_Worker_3 = addprocs(
     1,
     env=[
         Env_Array...,
-        "JULIA_CUDA_HARD_MEMORY_LIMIT" => "90%"
+        "JULIA_CUDA_HARD_MEMORY_LIMIT" => "80%"
     ]
 )[1]
 push!(Julia_Worker_Array, Julia_Worker_3)
 println("proc 3 added ", Julia_Worker_3)
+Julia_Worker_Array_Size = size(Julia_Worker_Array)[1]
+
 ##########################################################################################
 #=
 @everywhere(begin
@@ -83,8 +85,20 @@ end)
     Pkg.gc()
 end)
 =#
+@everywhere(import Pkg)
+@sync begin
+    @async begin
+        Pkg.update()
+        Pkg.gc()
+    end
+    @async begin
+        @everywhere(begin
+            Pkg.update()
+            Pkg.gc()
+        end)
+    end
+end
 ##########################################################################################
-Julia_Worker_Array_Size = size(Julia_Worker_Array)[1]
 @everywhere(begin
     using SoftLux
     using SoftBase
@@ -312,7 +326,7 @@ function initialize_parameters()
         plso(v__(parameter_tuple))
         unnormalized_x_matrix = load(joinpath(Path, string("../Surrogate/x_matrix_", Surrogate_String, ".jld2")))["x_matrix"]
         y_vector = load(joinpath(Path, string("../Surrogate/y_vector_", Surrogate_String, ".jld2")))["y_vector"]
-        return true, parameter_tuple, unnormalized_x_matrix, y_vector
+        return true, (parameter_tuple, unnormalized_x_matrix, y_vector)
     end
 end
 
