@@ -40,7 +40,7 @@ Julia_Worker_1 = addprocs(
 )[1]
 push!(Julia_Worker_Array, Julia_Worker_1)
 println("proc 1 added ", Julia_Worker_1)
-
+#=
 Julia_Worker_2 = addprocs(
     ["Julia_Worker@143.93.52.28"],             
     shell=:wincmd,
@@ -65,6 +65,7 @@ Julia_Worker_3 = addprocs(
 )[1]
 push!(Julia_Worker_Array, Julia_Worker_3)
 println("proc 3 added ", Julia_Worker_3)
+=#
 Julia_Worker_Array_Size = size(Julia_Worker_Array)[1]
 
 ##########################################################################################

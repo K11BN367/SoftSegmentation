@@ -1665,7 +1665,7 @@ uuid = "af0a1cfc-538f-4bb2-b0da-fbf558d56e16"
 version = "0.1.0"
 
 [[deps.SoftLux]]
-deps = ["InteractiveUtils", "Lux", "LuxCUDA", "NNlib", "Optimisers", "SoftBase", "SoftOptimisers", "SoftRandom", "Zygote"]
+deps = ["CUDA", "InteractiveUtils", "Lux", "LuxCUDA", "NNlib", "Optimisers", "SoftBase", "SoftOptimisers", "SoftRandom", "Zygote"]
 path = "../SoftLux"
 uuid = "d42e847f-a626-42f1-ae57-4f9c06181514"
 version = "0.1.0"
