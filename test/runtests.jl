@@ -296,8 +296,8 @@ execute_user_remote_workload = function (Array_Index, Tuple)
         Tuple...
     )
 end
-load_data = true
-Surrogate_String = "300720241"
+load_data = false
+Surrogate_String = "01082024"
 
 function initialize_parameters()
     if load_data == false
