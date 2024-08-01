@@ -47,6 +47,7 @@ module SoftSegmentation
     import MLUtils
     import MLUtils.DataLoader
     import CUDA
+    CUDA.set_runtime_version!(v"12.3")
 
     #'Argument'Dependency'Function'Trait'1
     include!(SoftSegmentation, @c__URI(SoftBase.Directory, a__Path("agumentate_data/'Function'1.jl")))
