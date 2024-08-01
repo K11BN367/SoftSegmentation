@@ -27,9 +27,9 @@ weakdeps = ["ChainRulesCore", "Test"]
 
 [[deps.AbstractGPs]]
 deps = ["ChainRulesCore", "Distributions", "FillArrays", "IrrationalConstants", "KernelFunctions", "LinearAlgebra", "PDMats", "Random", "RecipesBase", "Reexport", "Statistics", "StatsBase", "Test"]
-git-tree-sha1 = "010e6b5e06a9a6b1be6b146a7f29d5848490cc64"
+git-tree-sha1 = "6e5e13c57dbfdedddbc3ef727586d8ee0703d50a"
 uuid = "99985d1d-32ba-4be9-9821-2ec096f28918"
-version = "0.5.21"
+version = "0.5.19"
 
 [[deps.Accessors]]
 deps = ["CompositionsBase", "ConstructionBase", "Dates", "InverseFunctions", "LinearAlgebra", "MacroTools", "Markdown", "Test"]
@@ -1939,10 +1939,10 @@ uuid = "bea87d4a-7f5b-5778-9afe-8cc45184846c"
 version = "7.2.1+1"
 
 [[deps.Surrogates]]
-deps = ["ChainRulesCore", "Distributions", "ExtendableSparse", "GLM", "IterativeSolvers", "LinearAlgebra", "QuasiMonteCarlo", "SparseArrays", "Statistics", "Zygote"]
-git-tree-sha1 = "ba29564853a3f7b10eb699f1e99a62cdb6a3770f"
+deps = ["Distributions", "ExtendableSparse", "GLM", "IterativeSolvers", "LinearAlgebra", "QuasiMonteCarlo", "SparseArrays", "Statistics", "Zygote"]
+git-tree-sha1 = "48719c76eb2061bfd681497c6f3c81cce0a9f6cf"
 uuid = "6fc51010-71bc-11e9-0e15-a3fcc6593c49"
-version = "6.10.0"
+version = "6.9.0"
 
 [[deps.SurrogatesAbstractGPs]]
 deps = ["AbstractGPs", "Surrogates"]
