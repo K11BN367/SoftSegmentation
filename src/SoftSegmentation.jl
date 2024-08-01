@@ -44,8 +44,8 @@ module SoftSegmentation
     import Statistics.cov
     import Statistics.eigen
     import Images
-    import DataLoaders
-    import DataLoaders.DataLoader
+    import MLUtils
+    import MLUtils.DataLoader
     import CUDA
 
     #'Argument'Dependency'Function'Trait'1
