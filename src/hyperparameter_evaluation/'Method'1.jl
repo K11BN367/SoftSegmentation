@@ -303,7 +303,7 @@ function neuralnetwork_training(
         put!(To_Producer_Channel_Array[Array_Index], true)
         #plso("put!")
         #plso("DataLoader1")
-        Macro_Dataloader = DataLoader(Data, Batch_array_size)
+        Macro_Dataloader = DataLoader(Data, batchsize=Batch_array_size)
         #plso("DataLoader")
         for _2 = 1:iterations
             for (temp_input_model_array::Array{Float32, 4}, temp_output_model_array::Array{Float32, 4}) in Macro_Dataloader
@@ -324,7 +324,7 @@ function neuralnetwork_training(
                 end
                 adjust!(Optimizer, n=Gradient_Accumulation)
 
-                Micro_Dataloader = DataLoader((temp_input_model_array, temp_output_model_array), GPU_Array_Size)
+                Micro_Dataloader = DataLoader((temp_input_model_array, temp_output_model_array), batchsize=GPU_Array_Size)
                 for (temp_input_model_array::Array{Float32, 4}, temp_output_model_array::Array{Float32, 4}) in Micro_Dataloader
                     gpu_temp_input_model_array = temp_input_model_array |> Device
                     gpu_temp_output_model_array = temp_output_model_array |> Device
@@ -358,7 +358,7 @@ function neuralnetwork_training(
             end
         end
 
-        if Evaluations > 150000
+        if Evaluations > 5000
             for _1 = 1:To_Producer_Channel_Array_Size
                 Array_Index, Data = take!(To_Consumer_Channel)
                 put!(To_Producer_Channel_Array[Array_Index], false)

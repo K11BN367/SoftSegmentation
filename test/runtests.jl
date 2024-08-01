@@ -34,13 +34,13 @@ Julia_Worker_1 = addprocs(
     dir="C:/Users/Julia_Worker",
     env=[
         Env_Array...,
-        "JULIA_CUDA_HARD_MEMORY_LIMIT" => "80%"
+        "JULIA_CUDA_HARD_MEMORY_LIMIT" => "75%"
     ],
     #sshflags="-vvv"
 )[1]
 push!(Julia_Worker_Array, Julia_Worker_1)
 println("proc 1 added ", Julia_Worker_1)
-#=
+
 Julia_Worker_2 = addprocs(
     ["Julia_Worker@143.93.52.28"],             
     shell=:wincmd,
@@ -48,7 +48,7 @@ Julia_Worker_2 = addprocs(
     dir="C:/Users/Julia_Worker",       
     env=[
         Env_Array...,              
-        "JULIA_CUDA_HARD_MEMORY_LIMIT" => "80%"
+        "JULIA_CUDA_HARD_MEMORY_LIMIT" => "75%"
     ],
     #sshflags="-vvv"
 )[1]
@@ -60,12 +60,12 @@ Julia_Worker_3 = addprocs(
     1,
     env=[
         Env_Array...,
-        "JULIA_CUDA_HARD_MEMORY_LIMIT" => "80%"
+        "JULIA_CUDA_HARD_MEMORY_LIMIT" => "75%"
     ]
 )[1]
 push!(Julia_Worker_Array, Julia_Worker_3)
 println("proc 3 added ", Julia_Worker_3)
-=#
+
 Julia_Worker_Array_Size = size(Julia_Worker_Array)[1]
 
 ##########################################################################################
@@ -415,7 +415,7 @@ update_between_workload = function (x_matrix, y_vector)
         Values_Observable[] = Values_Vector
         GLMakie.autolimits!(Value_Axis)
     #end
-    if time() - T_Start > 3600*9
+    if time() - T_Start > 3600*6
         return false
     else
         return true

@@ -1,3 +1,10 @@
+function get_values(gaussian_process_surrogate)
+    #matrix = gaussian_process_surrogate.x
+    #plso("matrix")
+    #plso(size(matrix))
+    matrix = reduce(hcat, collect.(gaussian_process_surrogate.x))
+    return matrix, gaussian_process_surrogate.y
+end
 function hyperparameter_optimization(Julia_Worker_Array, execute_user_remote_workload, update_between_workload, initialize_parameters)
     array_size = size(Julia_Worker_Array)[1]
 
@@ -53,13 +60,7 @@ function hyperparameter_optimization(Julia_Worker_Array, execute_user_remote_wor
             break
         end
     end
-    function get_values(gaussian_process_surrogate)
-        #matrix = gaussian_process_surrogate.x
-        #plso("matrix")
-        #plso(size(matrix))
-        matrix = reduce(hcat, collect.(gaussian_process_surrogate.x))
-        return matrix, gaussian_process_surrogate.y
-    end
+
     function update_between_workload1(gaussian_process_surrogate)
         x_matrix, y_vector = get_values(gaussian_process_surrogate)
         x_matrix = x_matrix .* maximum_parameter_tuple
@@ -106,8 +107,9 @@ function hyperparameter_optimization(Julia_Worker_Array, execute_user_remote_wor
         update_between_workload1,
         num_new_samples=5*10^2,
         #w_range=([0.0, 0.25, 0.5, 0.75, 1.0]),
-        #w_range=([0.0, 0.1, 0.3, 0.6, 1.0]),
-        w_range=([0.0, 0.4, 0.7, 0.9, 1.0]),
+        w_range=([0.0, 0.1, 0.3, 0.6, 1.0]),
+        #w_range=([0.0, 0.4, 0.7, 0.9, 1.0]),
+        #w_range=([1.0]),
         #w_range=([0.0]),
         #w_range=([0.5]),
         #w_range=([1.0]),
