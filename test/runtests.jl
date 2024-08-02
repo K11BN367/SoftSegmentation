@@ -249,7 +249,7 @@ execute_user_remote_workload = function (Array_Index, Tuple)
             target_output_array = target_output_array[:, :, :, 1] |> CPU_Device
         end
         T_Test = time()
-        acquire(Lock)
+        Base.acquire(Lock)
         println("Lock Time: ", time() - T_Test)
         @async begin
             for _ in 1:Size
@@ -292,7 +292,7 @@ execute_user_remote_workload = function (Array_Index, Tuple)
                 );
                 Index_Update = 0;
             end;
-            release(Lock)
+            Base.release(Lock)
         end
     end
     return SoftSegmentation.hyperparameter_evaluation(
