@@ -229,8 +229,6 @@ end
 validation_data_tuple = ((Input_2_33, Output_2_33), (Input_5_7, Output_5_7), (Input_9_4, Output_9_4), (Input_13_5, Output_13_5))
 execute_user_remote_workload = function (Array_Index, Tuple)
     GPU_Device = gpu_device()
-    plso("gpu_device")
-    plso(GPU_Device)
     CPU_Device = cpu_device()
     Index_Update = 0
     Index = 0

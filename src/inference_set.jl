@@ -7,12 +7,12 @@ function inference_set(model,
                        CPU_Device,
                        GPU_Device
     )
-    plso("inference_set 1")
+    #plso("inference_set 1")
     buffer_input_model_array_size = 4
     buffer_output_model_array_size = 4
     execute_model_array_size = 2
     array_lock = Threads.SpinLock()
-    plso("inference_set 2")
+    #plso("inference_set 2")
 
     set_input_model_array = (batch_array_size, offset)->(
         return (array_index)->(
@@ -23,7 +23,7 @@ function inference_set(model,
             return array |> GPU_Device;
         )
     )
-    plso("inference_set 3")
+    #plso("inference_set 3")
     set_output_model_array = (batch_array_size, offset)->(
         return (array_index, array)->(
             array = array |> CPU_Device;
@@ -35,11 +35,11 @@ function inference_set(model,
             unlock(array_lock);
         )
     )
-    plso("inference_set 4")
+    #plso("inference_set 4")
 
     batch_array_size = 4
     major_model_array_size = floor(Int64, model_array_size/batch_array_size)
-    plso("inference_set 5")
+    #plso("inference_set 5")
     inference_batch(model,
                     major_model_array_size,
                     set_input_model_array(batch_array_size, 0),
