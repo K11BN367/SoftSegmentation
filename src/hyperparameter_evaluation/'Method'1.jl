@@ -358,7 +358,7 @@ function neuralnetwork_training(
             end
         end
 
-        if Evaluations > 150000
+        if Evaluations > 5000
             for _1 = 1:To_Producer_Channel_Array_Size
                 Array_Index, Data = take!(To_Consumer_Channel)
                 put!(To_Producer_Channel_Array[Array_Index], false)
