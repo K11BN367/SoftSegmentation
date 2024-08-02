@@ -236,54 +236,63 @@ execute_user_remote_workload = function (Array_Index, Tuple)
     Image_Image_Array = c__Array{Float32, 1}()
     Batch_Error_Array = c__Array{Float32, 1}()
     Batch_Image_Array = c__Array{Float32, 1}()
+    Lock = Base.Threads.SpinLock()
     logger = function (Error, Batch_array_size, Model, Parameters, State, input_array, target_output_array)
         Size = size(input_array)[4];
-        for _ in 1:Size
-            Index = Index + 1;
-            push!(Image_Error_Array, Error);
-            push!(Image_Image_Array, Index);
-            if Index % Batch_array_size == 0
-                push!(Batch_Error_Array, sum(Image_Error_Array[(Index - Batch_array_size + 1):Index]) / Batch_array_size);
-                push!(Batch_Image_Array, Index);
-            end;
-        end
-
         Index_Update = Index_Update + Size
-        if Index_Update >= 1000
+        local Flag = Index_Update >= 1000
+        if Flag == true
             input_image = SoftSegmentation.convert_input(v__Dynamic_Array{Gray{Float32}, 2}, input_array[:, :, :, 1] |> CPU_Device);
             current_output_array, State = Model(input_array[:, :, :, 1:1], Parameters, State)
             current_output_array = softmax(current_output_array, dims=3)
             current_output_array = current_output_array[:, :, :, 1] |> CPU_Device
             target_output_array = target_output_array[:, :, :, 1] |> CPU_Device
+        end
+        lock(Lock)
+        @async begin
 
-            output_1_image = SoftSegmentation.convert_output(v__Dynamic_Array{Gray{Float32}, 2}, current_output_array[:, :, 1]);
-            output_2_image = SoftSegmentation.convert_output(v__Dynamic_Array{Gray{Float32}, 2}, current_output_array[:, :, 2]);
-            output_3_image = SoftSegmentation.convert_output(v__Dynamic_Array{Gray{Float32}, 2}, current_output_array[:, :, 3]);
-
-            #output_1_image = RGB{Float32}.(current_output_array[:, :, 1], target_output_array[:, :, 1], 0)
-            #output_2_image = RGB{Float32}.(current_output_array[:, :, 2], target_output_array[:, :, 2], 0)
-            #output_3_image = RGB{Float32}.(current_output_array[:, :, 3], target_output_array[:, :, 3], 0)
-            
-            #output_1_image = convert_output(c__Array{Gray{Float32}, 2}, target_output_array[:, :, 1]);
-            #output_2_image = convert_output(c__Array{Gray{Float32}, 2}, target_output_array[:, :, 2]);
-            #output_3_image = convert_output(c__Array{Gray{Float32}, 2}, target_output_array[:, :, 3]);
-            if isready(Log_To_Consumer_Remote_Channel_Array[Array_Index]) == true
-                println("flush")
-                take!(Log_To_Consumer_Remote_Channel_Array[Array_Index])
+            for _ in 1:Size
+                Index = Index + 1;
+                push!(Image_Error_Array, Error);
+                push!(Image_Image_Array, Index);
+                if Index % Batch_array_size == 0
+                    push!(Batch_Error_Array, sum(Image_Error_Array[(Index - Batch_array_size + 1):Index]) / Batch_array_size);
+                    push!(Batch_Image_Array, Index);
+                end;
             end
-            put!(
-                Log_To_Consumer_Remote_Channel_Array[Array_Index],
-                (
-                    input_image,
-                    output_1_image,
-                    output_2_image,
-                    output_3_image,
-                    Batch_Error_Array,
-                    Batch_Image_Array
-                )
-            );
-            Index_Update = 0;
-        end;
+
+
+            if Flag == true
+                output_1_image = SoftSegmentation.convert_output(v__Dynamic_Array{Gray{Float32}, 2}, current_output_array[:, :, 1]);
+                output_2_image = SoftSegmentation.convert_output(v__Dynamic_Array{Gray{Float32}, 2}, current_output_array[:, :, 2]);
+                output_3_image = SoftSegmentation.convert_output(v__Dynamic_Array{Gray{Float32}, 2}, current_output_array[:, :, 3]);
+
+                #output_1_image = RGB{Float32}.(current_output_array[:, :, 1], target_output_array[:, :, 1], 0)
+                #output_2_image = RGB{Float32}.(current_output_array[:, :, 2], target_output_array[:, :, 2], 0)
+                #output_3_image = RGB{Float32}.(current_output_array[:, :, 3], target_output_array[:, :, 3], 0)
+                
+                #output_1_image = convert_output(c__Array{Gray{Float32}, 2}, target_output_array[:, :, 1]);
+                #output_2_image = convert_output(c__Array{Gray{Float32}, 2}, target_output_array[:, :, 2]);
+                #output_3_image = convert_output(c__Array{Gray{Float32}, 2}, target_output_array[:, :, 3]);
+                if isready(Log_To_Consumer_Remote_Channel_Array[Array_Index]) == true
+                    println("flush")
+                    take!(Log_To_Consumer_Remote_Channel_Array[Array_Index])
+                end
+                put!(
+                    Log_To_Consumer_Remote_Channel_Array[Array_Index],
+                    (
+                        input_image,
+                        output_1_image,
+                        output_2_image,
+                        output_3_image,
+                        Batch_Error_Array,
+                        Batch_Image_Array
+                    )
+                );
+                Index_Update = 0;
+            end;
+            unlock(Lock)
+        end
     end
     return SoftSegmentation.hyperparameter_evaluation(
         GPU_Device,
