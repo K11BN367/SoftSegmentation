@@ -745,7 +745,7 @@ function hyperparameter_evaluation(
             end
 
             Index_Update = Index_Update + Size
-            if Index_Update >= 1000
+            if Index_Update >= 2500
                 input_image = convert_input(c__Array{Gray{Float32}, 2}, input_array[:, :, :, 1] |> CPU_Device);
                 current_output_array, State = Model(input_array[:, :, :, 1:1], Parameters, State)
                 current_output_array = softmax(current_output_array, dims=3)
