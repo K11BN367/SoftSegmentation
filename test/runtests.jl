@@ -396,11 +396,11 @@ GLMakie.lines!(Value_Axis, 1:1:length(Values_Vector), Values_Observable, color=G
 GLMakie.scatter!(Value_Axis, 1:1:length(Values_Vector), Values_Observable, color=GLMakie.RGBA(0, 1, 0, 1.0))
 
 T_Start = time()
-update_between_workload = function (x_matrix, y_vector)
+update_between_workload = function (x_matrix, y_vector, maximum_parameter_tuple)
     #x_matrix, y_vector = get_values(gaussian_process_surrogate)
 
     println("save start")
-    save(joinpath(Path, string("../Surrogate/x_matrix_", Surrogate_String, ".jld2")), "x_matrix", x_matrix)
+    save(joinpath(Path, string("../Surrogate/x_matrix_", Surrogate_String, ".jld2")), "x_matrix", x_matrix .* maximum_parameter_tuple)
     save(joinpath(Path, string("../Surrogate/y_vector_", Surrogate_String, ".jld2")), "y_vector", y_vector)
     println("save done")
     #@async begin

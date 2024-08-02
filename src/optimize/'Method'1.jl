@@ -39,8 +39,8 @@ function Surrogates.surrogate_optimize(
                 if x_size < num_incubment_points
                     num_incubment_points = x_size
                 end
-                #plso("type")
-                #plso(typeof(temp_surr.x[1]))
+                println("type")
+                println(typeof(temp_surr.x[1]))
                 new_sample = Array{typeof(temp_surr.x[1]), 1}(undef, (num_new_samples*num_incubment_points))
                 s = Array{typeof(temp_surr.y[1]), 1}(undef, (num_new_samples*num_incubment_points))
                 x_array_index_array = shuffle(1:1:x_size)
@@ -82,10 +82,9 @@ function Surrogates.surrogate_optimize(
                         s[j] = temp_surr(new_sample[j])
                     end
                     =#
-                    #plso("test")
                     new_ = sample(num_new_samples, new_lb, new_ub, sample_type)
-                    #println(typeof(new_))
-                    new_sample[(index_offset + 1):(index_offset + num_new_samples)] = sample(num_new_samples, new_lb, new_ub, sample_type)
+                    println(typeof(new_))
+                    new_sample[(index_offset + 1):(index_offset + num_new_samples)] = new_
                     for j = 1:num_new_samples
                         s[index_offset + j] = temp_surr(new_sample[index_offset + j])
                     end

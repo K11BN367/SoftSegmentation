@@ -63,8 +63,8 @@ function hyperparameter_optimization(Julia_Worker_Array, execute_user_remote_wor
 
     function update_between_workload1(gaussian_process_surrogate)
         x_matrix, y_vector = get_values(gaussian_process_surrogate)
-        x_matrix = x_matrix .* maximum_parameter_tuple
-        return update_between_workload(x_matrix, y_vector)
+        #        x_matrix = x_matrix .* maximum_parameter_tuple
+        return update_between_workload(x_matrix, y_vector, maximum_parameter_tuple)
     end
 	sampling_algorithm = ShuffleSampleAlgorithm(normalized_parameter_tuple)
 

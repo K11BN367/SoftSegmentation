@@ -22,8 +22,13 @@ module SoftSegmentation
     const Skip = SoftLux.Skip
     const Infer = SoftLux.Infer
     
-    import Surrogates
-    import Surrogates.sample
+
+    using Surrogates
+    using LinearAlgebra
+    using AbstractGPs
+    using SurrogatesAbstractGPs
+    #import Surrogates
+    #import Surrogates.sample
     import Colors
     import Colors.Gray
     import Colors.RGB
