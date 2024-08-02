@@ -248,9 +248,7 @@ execute_user_remote_workload = function (Array_Index, Tuple)
             current_output_array = current_output_array[:, :, :, 1] |> CPU_Device
             target_output_array = target_output_array[:, :, :, 1] |> CPU_Device
         end
-        T_Test = time()
         Base.acquire(Lock)
-        println("Lock Time: ", time() - T_Test)
         @async begin
             for _ in 1:Size
                 Index = Index + 1;
