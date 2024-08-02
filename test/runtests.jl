@@ -248,10 +248,11 @@ execute_user_remote_workload = function (Array_Index, Tuple)
             current_output_array = current_output_array[:, :, :, 1] |> CPU_Device
             target_output_array = target_output_array[:, :, :, 1] |> CPU_Device
         end
-        Test_T = time_ns()
-        Base.acquire(Lock)
-        println("acquire Time: ", (time_ns() - Test_T)/10^9)
+        #Test_T = time_ns()
+        
+        #println("acquire Time: ", (time_ns() - Test_T)/10^9)
         @async begin
+            Base.acquire(Lock)
             for _ in 1:Size
                 Index = Index + 1;
                 push!(Image_Error_Array, Error);
