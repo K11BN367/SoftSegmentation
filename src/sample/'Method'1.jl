@@ -28,6 +28,6 @@ function Surrogates.QuasiMonteCarlo.sample(Hyperparameter_Array_Length::Integer,
         #println(Random_Array)
         Hyperparameter_Array[:, j] = Random_Array
     end
-    println(size(Hyperparameter_Array))
+    #println(size(Hyperparameter_Array))
     return Hyperparameter_Array
 end
