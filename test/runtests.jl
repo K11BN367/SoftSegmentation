@@ -261,7 +261,7 @@ execute_user_remote_workload = function (Array_Index, Tuple)
                     push!(Batch_Image_Array, Index);
                 end;
             end
-
+            Base.release(Lock)
 
             if Flag == true
                 output_1_image = SoftSegmentation.convert_output(v__Dynamic_Array{Gray{Float32}, 2}, current_output_array[:, :, 1]);
@@ -292,7 +292,7 @@ execute_user_remote_workload = function (Array_Index, Tuple)
                 );
                 Index_Update = 0;
             end;
-            Base.release(Lock)
+            
         end
     end
     return SoftSegmentation.hyperparameter_evaluation(
