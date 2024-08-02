@@ -296,7 +296,7 @@ execute_user_remote_workload = function (Array_Index, Tuple)
         Tuple...
     )
 end
-load_data = false
+load_data = true
 Surrogate_String = "01082024"
 
 function initialize_parameters()
@@ -415,7 +415,7 @@ update_between_workload = function (x_matrix, y_vector, maximum_parameter_tuple)
         Values_Observable[] = Values_Vector
         GLMakie.autolimits!(Value_Axis)
     #end
-    if time() - T_Start > 3600*6
+    if time() - T_Start > 3600*8.5
         return false
     else
         return true
