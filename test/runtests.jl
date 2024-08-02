@@ -247,6 +247,7 @@ execute_user_remote_workload = function (Array_Index, Tuple)
             current_output_array = softmax(current_output_array, dims=3)
             current_output_array = current_output_array[:, :, :, 1] |> CPU_Device
             target_output_array = target_output_array[:, :, :, 1] |> CPU_Device
+            Index_Update = 0;
         end
         #Test_T = time_ns()
         
@@ -291,7 +292,6 @@ execute_user_remote_workload = function (Array_Index, Tuple)
                         Batch_Image_Array
                     )
                 );
-                Index_Update = 0;
             end;
             
         end
