@@ -236,7 +236,7 @@ execute_user_remote_workload = function (Array_Index, Tuple)
     Image_Image_Array = c__Array{Float32, 1}()
     Batch_Error_Array = c__Array{Float32, 1}()
     Batch_Image_Array = c__Array{Float32, 1}()
-    Lock = Base.Threads.SpinLock()
+    Lock = Base.ReentrantLock()
     logger = function (Error, Batch_array_size, Model, Parameters, State, input_array, target_output_array)
         Size = size(input_array)[4];
         Index_Update = Index_Update + Size
@@ -249,6 +249,7 @@ execute_user_remote_workload = function (Array_Index, Tuple)
             target_output_array = target_output_array[:, :, :, 1] |> CPU_Device
         end
         lock(Lock)
+        plso("lock")
         @async begin
 
             for _ in 1:Size
