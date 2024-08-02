@@ -145,7 +145,7 @@ Path = "//tfiler1.hochschule-trier.de/LAP/Lehre und Forschung/interne Projekte/L
 
 function initialize_parameters()
     if load_data == false
-        parameter_tuple = (
+        parameter_tuple::v__Tuple{Vector{Float64}, Vector{Float64}} = (
             [collect(-30.0:0.1:1.0)...],
             [collect(-30.0:0.1:1.0)...]
         )

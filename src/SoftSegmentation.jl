@@ -11,6 +11,7 @@ module SoftSegmentation
     import SoftBase.:(<)
     import SoftBase.:(>=)
     import SoftBase.:(<=)
+
     import SoftBase.size
     import SoftBase.maximum
     import SoftBase.minimum
@@ -22,6 +23,7 @@ module SoftSegmentation
     const Infer = SoftLux.Infer
     
     import Surrogates
+    import Surrogates.sample
     import Colors
     import Colors.Gray
     import Colors.RGB

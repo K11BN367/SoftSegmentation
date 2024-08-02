@@ -1,47 +1,3 @@
-#=
-parameter_tuple::Tuple{Vector{Float64}, Vector{Float64}} = (-10.0:0.1:10.0, -10.0:0.1:10.0)
-maximum_parameter_tuple = maximum.(parameter_tuple)
-normalized_parameter_tuple = parameter_tuple ./ maximum_parameter_tuple
-maximum_normalized_parameter_vector::Vector{Float64} = [maximum.(normalized_parameter_tuple)...]
-minimum_normalized_parameter_vector::Vector{Float64} = [minimum.(normalized_parameter_tuple)...]
-minimum_normalized_parameter_vector_index_tuple = sortperm(minimum_normalized_parameter_vector)
-local minimum_normalized_parameter
-for Index in minimum_normalized_parameter_vector_index_tuple
-    minimum_normalized_parameter = minimum_normalized_parameter_vector[Index]
-    if minimum_normalized_parameter > 0
-        break
-    end
-end
-sampling_algorithm = ShuffleSampleAlgorithm(normalized_parameter_tuple)
-f = (x, y)->sin(x)*x^2 + sin(y)*y^2
-x_matrix = sample(array_size, minimum_normalized_parameter_vector, maximum_normalized_parameter_vector, sampling_algorithm)
-y_vector = [f(x, y) for (x, y) in zip(x_matrix[1], x_matrix[2])]
-gaussian_process_surrogate = AbstractGPSurrogate(x_matrix, y_vector, gp=GP(GaussianKernel()))
-optimization_algorithm = OptimizationAlgorithm()
-optimize(
-    f,
-    optimization_algorithm,
-    minimum_normalized_parameter_vector, maximum_normalized_parameter_vector,
-    gaussian_process_surrogate,
-    sampling_algorithm,
-    function update_between_workload1(gaussian_process_surrogate)
-        x_matrix, y_vector = get_values(gaussian_process_surrogate)
-        x_matrix = x_matrix .* maximum_parameter_tuple
-        return update_between_workload(x_matrix, y_vector)
-    end,
-    num_new_samples=5*10^2,
-    #w_range=([0.0, 0.25, 0.5, 0.75, 1.0]),
-    #w_range=([0.0, 0.1, 0.3, 0.6, 1.0]),
-    w_range=([0.0, 0.4, 0.7, 0.9, 1.0]),
-    #w_range=([1.0]),
-    #w_range=([0.0]),
-    #w_range=([0.5]),
-    #w_range=([1.0]),
-    dtol=minimum_normalized_parameter*0.5,
-    num_new_points=size(Julia_Worker_Array)[1] + 1,
-    num_incubment_points=5*10^2
-)
-=#
 function Surrogates.surrogate_optimize(
         obj::Function,
         ::OptimizationAlgorithm,
@@ -83,6 +39,8 @@ function Surrogates.surrogate_optimize(
                 if x_size < num_incubment_points
                     num_incubment_points = x_size
                 end
+                #plso("type")
+                #plso(typeof(temp_surr.x[1]))
                 new_sample = Array{typeof(temp_surr.x[1]), 1}(undef, (num_new_samples*num_incubment_points))
                 s = Array{typeof(temp_surr.y[1]), 1}(undef, (num_new_samples*num_incubment_points))
                 x_array_index_array = shuffle(1:1:x_size)
@@ -124,6 +82,9 @@ function Surrogates.surrogate_optimize(
                         s[j] = temp_surr(new_sample[j])
                     end
                     =#
+                    #plso("test")
+                    new_ = sample(num_new_samples, new_lb, new_ub, sample_type)
+                    #println(typeof(new_))
                     new_sample[(index_offset + 1):(index_offset + num_new_samples)] = sample(num_new_samples, new_lb, new_ub, sample_type)
                     for j = 1:num_new_samples
                         s[index_offset + j] = temp_surr(new_sample[index_offset + j])

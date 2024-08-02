@@ -1,2 +1,2 @@
-const sample = Surrogates.QuasiMonteCarlo.sample
-export sample
+#const sample = Surrogates.QuasiMonteCarlo.sample
+#export sample

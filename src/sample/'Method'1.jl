@@ -1,4 +1,3 @@
-
 function Surrogates.QuasiMonteCarlo.sample(Hyperparameter_Array_Length::Integer, Lower_Bound::T1, Upper_Bound::T1, Sample_Algorithm::ShuffleSampleAlgorithm{Vector{T3}, N}) where {T1<:Union{Number, Union{Tuple{Vararg{T2}}, AbstractVector{<:T2}}}} where {T2, T3, N}
     Hyperparameter_Array = Array{T3, 2}(undef, (N, Hyperparameter_Array_Length))
     Random_Array = Array{T3, 1}(undef, N)
