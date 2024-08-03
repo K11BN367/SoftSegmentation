@@ -185,20 +185,20 @@ for index = 1:Julia_Worker_Array_Size
     )
     @async begin
         while true
-            input_image,
-            output_1_image,
-            output_2_image,
-            output_3_image,
+            Input_Image,
+            Output_1_Image,
+            Output_2_Image,
+            Output_3_Image,
             #output_4_image,
-            Batch_Error_Array,
-            Batch_Image_Array = take!(Log_To_Consumer_Remote_Channel_Array[index])
-            Matrix_Observable_Array[index, 1][] = input_image
-            Matrix_Observable_Array[index, 2][] = output_1_image
-            Matrix_Observable_Array[index, 3][] = output_2_image
-            Matrix_Observable_Array[index, 4][] = output_3_image
+            Error_Batch_Array,
+            Image_Batch_Array = take!(Log_To_Consumer_Remote_Channel_Array[index])
+            Matrix_Observable_Array[index, 1][] = Input_Image
+            Matrix_Observable_Array[index, 2][] = Output_1_Image
+            Matrix_Observable_Array[index, 3][] = Output_2_Image
+            Matrix_Observable_Array[index, 4][] = Output_3_Image
             #Matrix_Observable_Array[index, 5][] = Tuple[5]
-            Vector_Observable_Array[index, 1].val = Batch_Error_Array
-            Vector_Observable_Array[index, 2].val = Batch_Image_Array
+            Vector_Observable_Array[index, 1].val = Error_Batch_Array
+            Vector_Observable_Array[index, 2].val = Image_Batch_Array
             GLMakie.notify(Vector_Observable_Array[index, 1])
             GLMakie.autolimits!(Axis_Array[index, 5])
             yield()
@@ -231,51 +231,52 @@ execute_user_remote_workload = function (Array_Index, Tuple)
     GPU_Device = gpu_device()
     CPU_Device = cpu_device()
     Index_Update = 0
-    Index = 0
-    Image_Error_Array = c__Array{Float32, 1}()
-    Image_Image_Array = c__Array{Float32, 1}()
-    Batch_Error_Array = c__Array{Float32, 1}()
-    Batch_Image_Array = c__Array{Float32, 1}()
+    Array_Index = 0
+    Error_Array = c__Array{Float32, 1}()
+    Error_Batch_Array = c__Array{Float32, 1}()
+    Image_Batch_Array = c__Array{Float32, 1}()
     Lock = Base.Semaphore(1)
-    logger = function (Error, Batch_array_size, Model, Parameters, State, input_array, target_output_array)
-        Size = size(input_array)[4];
-        Index_Update = Index_Update + Size
+    logger = function (Error, Batch_Array_Size, Model, Parameters, State, Input_Array, Target_Output_Array)
+        local Array_Size = size(Input_Array)[4];
+        Index_Update = Index_Update + Array_Size
         local Flag = Index_Update >= 1000
+        local Input_Image, Current_Output_Array
         if Flag == true
-            input_image = SoftSegmentation.convert_input(v__Dynamic_Array{Gray{Float32}, 2}, input_array[:, :, :, 1] |> CPU_Device);
-            current_output_array, State = Model(input_array[:, :, :, 1:1], Parameters, State)
-            current_output_array = softmax(current_output_array, dims=3)
-            current_output_array = current_output_array[:, :, :, 1] |> CPU_Device
-            target_output_array = target_output_array[:, :, :, 1] |> CPU_Device
+            Current_Output_Array, State = Model(Input_Array[:, :, :, 1:1], Parameters, State)
+            Current_Output_Array = softmax(Current_Output_Array, dims=3)
+            Current_Output_Array = Current_Output_Array[:, :, :, 1] |> CPU_Device
+            #Target_Output_Array = Target_Output_Array[:, :, :, 1] |> CPU_Device
+            Input_Array = Input_Array[:, :, :, 1] |> CPU_Device
             Index_Update = 0;
         end
         #Test_T = time_ns()
         
         #println("acquire Time: ", (time_ns() - Test_T)/10^9)
         Base.acquire(Lock)
-        @async begin
-            for _ in 1:Size
-                Index = Index + 1;
-                push!(Image_Error_Array, Error);
-                push!(Image_Image_Array, Index);
-                if Index % Batch_array_size == 0
-                    push!(Batch_Error_Array, sum(Image_Error_Array[(Index - Batch_array_size + 1):Index]) / Batch_array_size);
-                    push!(Batch_Image_Array, Index);
+        @async begin #let Flag = Flag, Current_Output_Array = Current_Output_Array, Input_Array = Input_Array
+            for _ in 1:Array_Size
+                Array_Index = Array_Index + 1;
+                push!(Error_Array, Error);
+                if Array_Index % Batch_Array_Size == 0
+                    push!(Error_Batch_Array, sum(Error_Array[(Array_Index - Batch_Array_Size + 1):Array_Index]) / Batch_Array_Size);
+                    push!(Image_Batch_Array, Array_Index);
                 end;
             end
             Base.release(Lock)
             if Flag == true
-                output_1_image = SoftSegmentation.convert_output(v__Dynamic_Array{Gray{Float32}, 2}, current_output_array[:, :, 1]);
-                output_2_image = SoftSegmentation.convert_output(v__Dynamic_Array{Gray{Float32}, 2}, current_output_array[:, :, 2]);
-                output_3_image = SoftSegmentation.convert_output(v__Dynamic_Array{Gray{Float32}, 2}, current_output_array[:, :, 3]);
+                Input_Image = SoftSegmentation.convert_input(v__Dynamic_Array{Gray{Float32}, 2}, Input_Array);
 
-                #output_1_image = RGB{Float32}.(current_output_array[:, :, 1], target_output_array[:, :, 1], 0)
-                #output_2_image = RGB{Float32}.(current_output_array[:, :, 2], target_output_array[:, :, 2], 0)
-                #output_3_image = RGB{Float32}.(current_output_array[:, :, 3], target_output_array[:, :, 3], 0)
+                Output_1_Image = SoftSegmentation.convert_output(v__Dynamic_Array{Gray{Float32}, 2}, Current_Output_Array[:, :, 1]);
+                Output_2_Image = SoftSegmentation.convert_output(v__Dynamic_Array{Gray{Float32}, 2}, Current_Output_Array[:, :, 2]);
+                Output_3_Image = SoftSegmentation.convert_output(v__Dynamic_Array{Gray{Float32}, 2}, Current_Output_Array[:, :, 3]);
+
+                #Output_1_Image = RGB{Float32}.(Current_Output_Array[:, :, 1], Target_Output_Array[:, :, 1], 0)
+                #Output_2_Image = RGB{Float32}.(Current_Output_Array[:, :, 2], Target_Output_Array[:, :, 2], 0)
+                #Output_3_Image = RGB{Float32}.(Current_Output_Array[:, :, 3], Target_Output_Array[:, :, 3], 0)
                 
-                #output_1_image = convert_output(c__Array{Gray{Float32}, 2}, target_output_array[:, :, 1]);
-                #output_2_image = convert_output(c__Array{Gray{Float32}, 2}, target_output_array[:, :, 2]);
-                #output_3_image = convert_output(c__Array{Gray{Float32}, 2}, target_output_array[:, :, 3]);
+                #Output_1_Image = convert_output(c__Array{Gray{Float32}, 2}, Target_Output_Array[:, :, 1]);
+                #Output_2_Image = convert_output(c__Array{Gray{Float32}, 2}, Target_Output_Array[:, :, 2]);
+                #Output_3_Image = convert_output(c__Array{Gray{Float32}, 2}, Target_Output_Array[:, :, 3]);
                 if isready(Log_To_Consumer_Remote_Channel_Array[Array_Index]) == true
                     println("flush")
                     take!(Log_To_Consumer_Remote_Channel_Array[Array_Index])
@@ -283,12 +284,12 @@ execute_user_remote_workload = function (Array_Index, Tuple)
                 put!(
                     Log_To_Consumer_Remote_Channel_Array[Array_Index],
                     (
-                        input_image,
-                        output_1_image,
-                        output_2_image,
-                        output_3_image,
-                        Batch_Error_Array,
-                        Batch_Image_Array
+                        Input_Image,
+                        Output_1_Image,
+                        Output_2_Image,
+                        Output_3_Image,
+                        Error_Batch_Array,
+                        Image_Batch_Array
                     )
                 );
             end;
@@ -446,11 +447,11 @@ Model = SoftSegmentation.neuralnetwork_definition(
 )
 
 Learning_rate = 0.1
-Batch_array_size = 10
+Batch_Array_Size = 10
 Parameters, State, Optimizer = SoftSegmentation.neuralnetwork_setup(
     Model,
     Learning_rate,
-    Batch_array_size
+    Batch_Array_Size
 )
 
 
@@ -482,7 +483,7 @@ training_data = ()->begin
     end
 end
 validation_data_tuple = ((Input_2_33, Output_2_33), (Input_5_7, Output_5_7), (Input_9_4, Output_9_4), (Input_13_5, Output_13_5))
-logger = function (Error, Batch_array_size, Model, Parameters, State, input_array, target_output_array) end
+logger = function (Error, Batch_Array_Size, Model, Parameters, State, Input_Array, Target_Output_Array) end
 Iterations = 10
 Factor = 2
 Weight_1 = 0.25
@@ -503,7 +504,7 @@ Noise = 0.05
 image_angle = ()->(rand()*2*π)
 image_scale = ()->(1 - (0.5 - rand())*0.2)
 Image_Noise = ()->(rand() * Noise)
-Array_Size = round(Int64, Batch_array_size*Factor)
+Array_Size = round(Int64, Batch_Array_Size*Factor)
 SoftSegmentation.generate_data_set(
     model_array_size_tuple,
     Array_Size,
@@ -522,7 +523,7 @@ SoftSegmentation.neuralnetwork_training(
     State,
     training_data,
     logger,
-    Batch_array_size,
+    Batch_Array_Size,
     Iterations,
     Factor,
     Weight_1,
