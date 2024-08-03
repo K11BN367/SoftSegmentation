@@ -325,11 +325,16 @@ function neuralnetwork_training(
                 adjust!(Optimizer, n=Gradient_Accumulation)
 
                 gpu_temp_input_model_Array = Input_Model_Array[:, :, :, 1:GPU_Array_Size] |> Device
+                plso("gpu_temp_input_model_Array")
                 gpu_temp_input_model_Tuple_Array = (gpu_temp_input_model_Array, typeof(gpu_temp_input_model_Array)(undef, size(gpu_temp_input_model_Array)))
+                plso("gpu_temp_input_model_Tuple_Array")
                 gpu_temp_output_model_Array = Output_Model_Array[:, :, :, 1:GPU_Array_Size] |> Device
+                plso("gpu_temp_output_model_Array")
                 gpu_temp_output_model_Tuple_Array = (gpu_temp_output_model_Array, typeof(gpu_temp_output_model_Array)(undef, size(gpu_temp_output_model_Array)))
+                plso("gpu_temp_output_model_Tuple_Array")
                 Tuple_Index_1 = 1
                 Micro_Dataloader = DataLoader((Input_Model_Array[:, :, :, (GPU_Array_Size + 1):Array_Size], Output_Model_Array[:, :, :, (GPU_Array_Size + 1):Array_Size]), batchsize=GPU_Array_Size)
+                plso("Micro_Dataloader")
                 #Micro_Dataloader = DataLoader((Input_Model_Array, Output_Model_Array), batchsize=GPU_Array_Size)
                 for (Input_Model_Array::Array{Float32, 4}, Output_Model_Array::Array{Float32, 4}) in Micro_Dataloader
                     #gpu_temp_input_model_array = Input_Model_Array |> Device
@@ -350,6 +355,7 @@ function neuralnetwork_training(
                     end
                     @sync begin
                         @async begin
+                            plso("pull back start")
                             Error, Pullback = let Parameters = Parameters, State = State, Model = Model, gpu_temp_input_model_array = gpu_temp_input_model_Tuple_Array[Tuple_Index_2], gpu_temp_output_model_array = gpu_temp_output_model_Tuple_Array[Tuple_Index_2]
                                 pullback(
                                     (Parameters)->(
@@ -373,10 +379,13 @@ function neuralnetwork_training(
                             update!(Optimizer, Parameters, Gradients)
 
                             logger(Error, Batch_array_size, Model, Parameters, State, gpu_temp_input_model_Tuple_Array[Tuple_Index_2], gpu_temp_output_model_Tuple_Array[Tuple_Index_2])
+                            plso("pull back end")
                         end
                         @async begin
+                            plso("upload start")
                             gpu_temp_input_model_Tuple_Array[Tuple_Index_3] = Input_Model_Array |> Device
                             gpu_temp_output_model_Tuple_Array[Tuple_Index_3] = Output_Model_Array |> Device
+                            plso("upload end")
                         end
                     end
                 end
