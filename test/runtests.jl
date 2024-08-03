@@ -252,8 +252,8 @@ execute_user_remote_workload = function (Array_Index, Tuple)
         #Test_T = time_ns()
         
         #println("acquire Time: ", (time_ns() - Test_T)/10^9)
+        Base.acquire(Lock)
         @async begin
-            Base.acquire(Lock)
             for _ in 1:Size
                 Index = Index + 1;
                 push!(Image_Error_Array, Error);
@@ -264,7 +264,6 @@ execute_user_remote_workload = function (Array_Index, Tuple)
                 end;
             end
             Base.release(Lock)
-
             if Flag == true
                 output_1_image = SoftSegmentation.convert_output(v__Dynamic_Array{Gray{Float32}, 2}, current_output_array[:, :, 1]);
                 output_2_image = SoftSegmentation.convert_output(v__Dynamic_Array{Gray{Float32}, 2}, current_output_array[:, :, 2]);
@@ -293,7 +292,6 @@ execute_user_remote_workload = function (Array_Index, Tuple)
                     )
                 );
             end;
-            
         end
     end
     return SoftSegmentation.hyperparameter_evaluation(
