@@ -337,13 +337,16 @@ function neuralnetwork_training(
                 end
                 plso("Index_Range_Tuple")
                 plso(Index_Range_Tuple)
-                Micro_Dataloader = DataLoader((temp_input_model_array, temp_output_model_array), batchsize=GPU_Array_Size)
+                #Micro_Dataloader = DataLoader((temp_input_model_array, temp_output_model_array), batchsize=GPU_Array_Size)
                 Micro_Dataloader = CUDA.CuIterator(
                     [(temp_input_model_array[:, :, :, Index_Range], temp_output_model_array[:, :, :, Index_Range]) for Index_Range in Index_Range_Tuple]
                 )
-                for (temp_input_model_array::Array{Float32, 4}, temp_output_model_array::Array{Float32, 4}) in Micro_Dataloader
+                plso("Micro_Dataloader")
+                for (temp_input_model_array, temp_output_model_array) in Micro_Dataloader
                     #gpu_temp_input_model_array = temp_input_model_array |> Device
                     #gpu_temp_output_model_array = temp_output_model_array |> Device
+                    gpu_temp_input_model_array = temp_input_model_array
+                    gpu_temp_output_model_array = temp_output_model_array
                     #plso("pullback")
                     #plso(v__(gpu_temp_input_model_array), " ", size(gpu_temp_input_model_array))
                     #plso(v__(gpu_temp_output_model_array), " ", size(gpu_temp_output_model_array))
