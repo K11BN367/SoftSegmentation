@@ -306,54 +306,79 @@ function neuralnetwork_training(
         Macro_Dataloader = DataLoader(Data, batchsize=Batch_array_size)
         #plso("DataLoader")
         for _2 = 1:iterations
-            for (temp_input_model_array::Array{Float32, 4}, temp_output_model_array::Array{Float32, 4}) in Macro_Dataloader
-                Macro_Array_Size = size(temp_input_model_array)[4]
+            for (Input_Model_Array::Array{Float32, 4}, Output_Model_Array::Array{Float32, 4}) in Macro_Dataloader
+                Array_Size = size(Input_Model_Array)[4]
 
-                Evaluations += Macro_Array_Size
+                Evaluations += Array_Size
 
                 GPU_Array_Size = 6
-                Offset = mod(Macro_Array_Size, GPU_Array_Size)
+                Offset = mod(Array_Size, GPU_Array_Size)
                 local Gradient_Accumulation
                 if Offset != 0
-                    if Macro_Array_Size < GPU_Array_Size
-                        GPU_Array_Size = Macro_Array_Size
+                    if Array_Size < GPU_Array_Size
+                        GPU_Array_Size = Array_Size
                     end
-                    Gradient_Accumulation = Int((Macro_Array_Size - Offset) / GPU_Array_Size) + 1
+                    Gradient_Accumulation = Int((Array_Size - Offset) / GPU_Array_Size) + 1
                 else
-                    Gradient_Accumulation = Int(Macro_Array_Size / GPU_Array_Size)
+                    Gradient_Accumulation = Int(Array_Size / GPU_Array_Size)
                 end
                 adjust!(Optimizer, n=Gradient_Accumulation)
 
-                Micro_Dataloader = DataLoader((temp_input_model_array, temp_output_model_array), batchsize=GPU_Array_Size)
-                for (temp_input_model_array::Array{Float32, 4}, temp_output_model_array::Array{Float32, 4}) in Micro_Dataloader
-                    gpu_temp_input_model_array = temp_input_model_array |> Device
-                    gpu_temp_output_model_array = temp_output_model_array |> Device
+                gpu_temp_input_model_Array = Input_Model_Array[:, :, :, 1:GPU_Array_Size] |> Device
+                gpu_temp_input_model_Tuple_Array = (gpu_temp_input_model_Array, typeof(gpu_temp_input_model_Array)(undef, size(gpu_temp_input_model_Array)))
+                gpu_temp_output_model_Array = Output_Model_Array[:, :, :, 1:GPU_Array_Size] |> Device
+                gpu_temp_output_model_Tuple_Array = (gpu_temp_output_model_Array, typeof(gpu_temp_output_model_Array)(undef, size(gpu_temp_output_model_Array)))
+                Tuple_Index_1 = 1
+                Micro_Dataloader = DataLoader((Input_Model_Array[:, :, :, (GPU_Array_Size + 1):Array_Size], Output_Model_Array[:, :, :, (GPU_Array_Size + 1):Array_Size]), batchsize=GPU_Array_Size)
+                #Micro_Dataloader = DataLoader((Input_Model_Array, Output_Model_Array), batchsize=GPU_Array_Size)
+                for (Input_Model_Array::Array{Float32, 4}, Output_Model_Array::Array{Float32, 4}) in Micro_Dataloader
+                    #gpu_temp_input_model_array = Input_Model_Array |> Device
+                    #gpu_temp_output_model_array = Output_Model_Array |> Device
                     #plso("pullback")
                     #plso(v__(gpu_temp_input_model_array), " ", size(gpu_temp_input_model_array))
                     #plso(v__(gpu_temp_output_model_array), " ", size(gpu_temp_output_model_array))
-                    Error, Pullback = let Parameters = Parameters, State = State, Model = Model, gpu_temp_input_model_array = gpu_temp_input_model_array, gpu_temp_output_model_array = gpu_temp_output_model_array
-                        pullback(
-                            (Parameters)->(
-                                weighted_crossentropy_error(
-                                    Model, 
-                                    Parameters,
-                                    State,
-                                    weight_1,
-                                    weight_2,
-                                    weight_3,
-                                    gpu_temp_input_model_array,
-                                    gpu_temp_output_model_array
-                                )[1];
-                                #quadratic_error(Model, Parameters, State, gpu_temp_input_model_array, gpu_temp_output_model_array)[1];
-                            ),
-                            Parameters
-                        )
+                    local Tuple_Index_2
+                    local Tuple_Index_3
+                    if Tuple_Index_1 == 2
+                        Tuple_Index_2 = 2
+                        Tuple_Index_3 = 1
+                        Tuple_Index_1 = 1
+                    else
+                        Tuple_Index_2 = 1
+                        Tuple_Index_3 = 2
+                        Tuple_Index_1 = 2
                     end
-                    Gradients = only(Pullback(Error))
+                    @sync begin
+                        @async begin
+                            Error, Pullback = let Parameters = Parameters, State = State, Model = Model, gpu_temp_input_model_array = gpu_temp_input_model_Tuple_Array[Tuple_Index_2], gpu_temp_output_model_array = gpu_temp_output_model_Tuple_Array[Tuple_Index_2]
+                                pullback(
+                                    (Parameters)->(
+                                        weighted_crossentropy_error(
+                                            Model, 
+                                            Parameters,
+                                            State,
+                                            weight_1,
+                                            weight_2,
+                                            weight_3,
+                                            gpu_temp_input_model_array,
+                                            gpu_temp_output_model_array
+                                        )[1];
+                                        #quadratic_error(Model, Parameters, State, gpu_temp_input_model_array, gpu_temp_output_model_array)[1];
+                                    ),
+                                    Parameters
+                                )
+                            end
+                            Gradients = only(Pullback(Error))
 
-                    update!(Optimizer, Parameters, Gradients)
+                            update!(Optimizer, Parameters, Gradients)
 
-                    logger(Error, Batch_array_size, Model, Parameters, State, gpu_temp_input_model_array, gpu_temp_output_model_array)
+                            logger(Error, Batch_array_size, Model, Parameters, State, gpu_temp_input_model_Tuple_Array[Tuple_Index_2], gpu_temp_output_model_Tuple_Array[Tuple_Index_2])
+                        end
+                        @async begin
+                            gpu_temp_input_model_Tuple_Array[Tuple_Index_3] = Input_Model_Array |> Device
+                            gpu_temp_output_model_Tuple_Array[Tuple_Index_3] = Output_Model_Array |> Device
+                        end
+                    end
                 end
             end
         end

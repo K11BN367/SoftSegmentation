@@ -199,7 +199,7 @@ function Surrogates.surrogate_optimize(
                 end
             end
         end
-        num_new_points = 1
+        num_new_points = 0
         while true
              adaptive_point_x, adaptive_point_y = take!(to_consumer_channel)
              delete!(adaptive_point_x_dict, adaptive_point_x)

@@ -262,7 +262,7 @@ function runtests()
                         push!(Image_Batch_Array, Array_Index);
                     end;
                 end
-                Base.release(Lock)
+                
                 if Flag == true
                     Input_Image = SoftSegmentation.convert_input(v__Dynamic_Array{Gray{Float32}, 2}, Input_Array);
 
@@ -293,6 +293,7 @@ function runtests()
                         )
                     );
                 end;
+                Base.release(Lock)
             end
         end
         return SoftSegmentation.hyperparameter_evaluation(
