@@ -53,7 +53,8 @@ module SoftSegmentation
     import Images
     import MLUtils
     import MLUtils.DataLoader
-    import CUDA
+    #import CUDA
+    import SoftLux.CUDA
     CUDA.set_runtime_version!(v"12.3")
 
     #'Argument'Dependency'Function'Trait'1

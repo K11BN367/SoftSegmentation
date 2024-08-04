@@ -154,7 +154,7 @@ function Surrogates.surrogate_optimize(
                     deleteat!(evaluation_of_merit_function, min_index)
                     deleteat!(new_sample, min_index)
                     if length(new_sample) == 0
-                        h += 0.001
+                        h += 0.05
                         if h <= 1.0
                             new_sample, s = return_(w, h, num_new_samples)
                             new_sample_size = length(new_sample)
