@@ -350,7 +350,7 @@ function neuralnetwork_training(
                     #plso("pullback")
                     #plso(v__(gpu_temp_input_model_array), " ", size(gpu_temp_input_model_array))
                     #plso(v__(gpu_temp_output_model_array), " ", size(gpu_temp_output_model_array))
-                    @time begin
+                    #@time begin
                     Error, Pullback = let Parameters = Parameters, State = State, Model = Model, gpu_temp_input_model_array = gpu_temp_input_model_array, gpu_temp_output_model_array = gpu_temp_output_model_array
                         pullback(
                             (Parameters)->(
@@ -372,7 +372,7 @@ function neuralnetwork_training(
                     Gradients = only(Pullback(Error))
 
                     update!(Optimizer, Parameters, Gradients)
-                    end
+                    #end
                     logger(Error, Batch_array_size, Model, Parameters, State, gpu_temp_input_model_array, gpu_temp_output_model_array)
                 end
             end
