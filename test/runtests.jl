@@ -336,7 +336,17 @@ function runtests()
             plso(v__(parameter_tuple))
             unnormalized_x_matrix = load(joinpath(Path, string("../Surrogate/x_matrix_", Surrogate_String, ".jld2")))["x_matrix"]
             y_vector = load(joinpath(Path, string("../Surrogate/y_vector_", Surrogate_String, ".jld2")))["y_vector"]
-            return true, (parameter_tuple, unnormalized_x_matrix, y_vector)
+            
+            index_array = sortperm(y_vector)
+            Size = 100
+            new_unnormalized_x_matrix = typeof(unnormalized_x_matrix)(undef, size(unnormalized_x_matrix)[1], Size)
+            new_y_vector = typeof(y_vector)(undef, Size)
+            for index = 1:Size
+                new_unnormalized_x_matrix[:, index] = unnormalized_x_matrix[:, index_array[index]]
+                new_y_vector[index] = y_vector[index_array[index]]
+            end
+
+            return true, (parameter_tuple, new_unnormalized_x_matrix, new_y_vector)
         end
     end
 
@@ -407,6 +417,7 @@ function runtests()
     T_Start = time()
     update_between_workload = function (x_matrix, y_vector, maximum_parameter_tuple)
         #x_matrix, y_vector = get_values(gaussian_process_surrogate)
+        Surrogate_String = "01082024_Sparse_2"
 
         println("save start")
         save(joinpath(Path, string("../Surrogate/x_matrix_", Surrogate_String, ".jld2")), "x_matrix", x_matrix .* maximum_parameter_tuple)
