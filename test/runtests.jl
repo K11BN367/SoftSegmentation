@@ -26,7 +26,7 @@ catch end
 Julia_Worker_Array = []
 Env_Array = ["JULIA_NUM_THREADS" => "auto"]
 
-
+#=
 Julia_Worker_1 = addprocs(
     ["Julia_Worker@143.93.62.171"],
     shell=:wincmd,
@@ -54,7 +54,7 @@ Julia_Worker_2 = addprocs(
 )[1]
 push!(Julia_Worker_Array, Julia_Worker_2)
 println("proc 2 added ", Julia_Worker_2)
-
+=#
 
 Julia_Worker_3 = addprocs(
     1,

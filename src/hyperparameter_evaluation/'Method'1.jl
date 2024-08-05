@@ -255,6 +255,7 @@ function neuralnetwork_training(
     #plso("To_Consumer_Channel")
     Time = time()
     Evaluations = 0
+    Temp_Semaphore = Base.Semaphore(1)
     while true
         if isready(To_Consumer_Channel) == false
             push!(To_Producer_Channel_Array, Channel{Bool}(1))
@@ -324,6 +325,7 @@ function neuralnetwork_training(
                 end
                 adjust!(Optimizer, n=Gradient_Accumulation)
 
+                #=
                 Index = 1
                 Index_Range_Tuple = ()
                 while true
@@ -335,45 +337,41 @@ function neuralnetwork_training(
                         Index += GPU_Array_Size
                     end
                 end
-                #plso("Index_Range_Tuple")
-                #plso(Index_Range_Tuple)
-                #Micro_Dataloader = DataLoader((temp_input_model_array, temp_output_model_array), batchsize=GPU_Array_Size)
                 Micro_Dataloader = CUDA.CuIterator(
                     [(temp_input_model_array[:, :, :, Index_Range], temp_output_model_array[:, :, :, Index_Range]) for Index_Range in Index_Range_Tuple]
                 )
-                #plso("Micro_Dataloader")
-                for (temp_input_model_array, temp_output_model_array) in Micro_Dataloader
-                    #gpu_temp_input_model_array = temp_input_model_array |> Device
-                    #gpu_temp_output_model_array = temp_output_model_array |> Device
-                    gpu_temp_input_model_array = temp_input_model_array
-                    gpu_temp_output_model_array = temp_output_model_array
-                    #plso("pullback")
-                    #plso(v__(gpu_temp_input_model_array), " ", size(gpu_temp_input_model_array))
-                    #plso(v__(gpu_temp_output_model_array), " ", size(gpu_temp_output_model_array))
-                    #@time begin
-                    Error, Pullback = let Parameters = Parameters, State = State, Model = Model, gpu_temp_input_model_array = gpu_temp_input_model_array, gpu_temp_output_model_array = gpu_temp_output_model_array
-                        pullback(
-                            (Parameters)->(
-                                weighted_crossentropy_error(
-                                    Model, 
-                                    Parameters,
-                                    State,
-                                    weight_1,
-                                    weight_2,
-                                    weight_3,
-                                    gpu_temp_input_model_array,
-                                    gpu_temp_output_model_array
-                                )[1];
-                                #quadratic_error(Model, Parameters, State, gpu_temp_input_model_array, gpu_temp_output_model_array)[1];
-                            ),
-                            Parameters
-                        )
-                    end
-                    Gradients = only(Pullback(Error))
+                =#
+                Micro_Dataloader = DataLoader((temp_input_model_array, temp_output_model_array), batchsize=GPU_Array_Size)
 
-                    update!(Optimizer, Parameters, Gradients)
-                    #end
-                    logger(Error, Batch_array_size, Model, Parameters, State, gpu_temp_input_model_array, gpu_temp_output_model_array)
+                for (temp_input_model_array, temp_output_model_array) in Micro_Dataloader
+                    Base.acquire(Temp_Semaphore)
+                    gpu_temp_input_model_array = temp_input_model_array |> Device
+                    gpu_temp_output_model_array = temp_output_model_array |> Device
+                    @async begin
+                        Error, Pullback = let Parameters = Parameters, State = State, Model = Model, gpu_temp_input_model_array = gpu_temp_input_model_array, gpu_temp_output_model_array = gpu_temp_output_model_array
+                            pullback(
+                                (Parameters)->(
+                                    weighted_crossentropy_error(
+                                        Model, 
+                                        Parameters,
+                                        State,
+                                        weight_1,
+                                        weight_2,
+                                        weight_3,
+                                        gpu_temp_input_model_array,
+                                        gpu_temp_output_model_array
+                                    )[1];
+                                    #quadratic_error(Model, Parameters, State, gpu_temp_input_model_array, gpu_temp_output_model_array)[1];
+                                ),
+                                Parameters
+                            )
+                        end
+                        Gradients = only(Pullback(Error))
+
+                        update!(Optimizer, Parameters, Gradients)
+                        logger(Error, Batch_array_size, Model, Parameters, State, gpu_temp_input_model_array, gpu_temp_output_model_array)
+                        Base.release(Temp_Semaphore)
+                    end
                 end
             end
         end
