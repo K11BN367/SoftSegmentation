@@ -344,9 +344,10 @@ function neuralnetwork_training(
                 Micro_Dataloader = DataLoader((temp_input_model_array, temp_output_model_array), batchsize=GPU_Array_Size)
 
                 for (temp_input_model_array, temp_output_model_array) in Micro_Dataloader
-                    Base.acquire(Temp_Semaphore)
+                    
                     gpu_temp_input_model_array = temp_input_model_array |> Device
                     gpu_temp_output_model_array = temp_output_model_array |> Device
+                    Base.acquire(Temp_Semaphore)
                     @async begin
                         Error, Pullback = let Parameters = Parameters, State = State, Model = Model, gpu_temp_input_model_array = gpu_temp_input_model_array, gpu_temp_output_model_array = gpu_temp_output_model_array
                             pullback(

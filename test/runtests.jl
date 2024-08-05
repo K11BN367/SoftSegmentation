@@ -26,7 +26,7 @@ catch end
 Julia_Worker_Array = []
 Env_Array = ["JULIA_NUM_THREADS" => "auto"]
 
-#=
+
 Julia_Worker_1 = addprocs(
     ["Julia_Worker@143.93.62.171"],
     shell=:wincmd,
@@ -34,7 +34,7 @@ Julia_Worker_1 = addprocs(
     dir="C:/Users/Julia_Worker",
     env=[
         Env_Array...,
-        "JULIA_CUDA_HARD_MEMORY_LIMIT" => "75%"
+        "JULIA_CUDA_HARD_MEMORY_LIMIT" => "80%"
     ],
     #sshflags="-vvv"
 )[1]
@@ -48,19 +48,19 @@ Julia_Worker_2 = addprocs(
     dir="C:/Users/Julia_Worker",       
     env=[
         Env_Array...,              
-        "JULIA_CUDA_HARD_MEMORY_LIMIT" => "75%"
+        "JULIA_CUDA_HARD_MEMORY_LIMIT" => "80%"
     ],
     #sshflags="-vvv"
 )[1]
 push!(Julia_Worker_Array, Julia_Worker_2)
 println("proc 2 added ", Julia_Worker_2)
-=#
+
 
 Julia_Worker_3 = addprocs(
     1,
     env=[
         Env_Array...,
-        "JULIA_CUDA_HARD_MEMORY_LIMIT" => "75%"
+        "JULIA_CUDA_HARD_MEMORY_LIMIT" => "80%"
     ]
 )[1]
 push!(Julia_Worker_Array, Julia_Worker_3)
