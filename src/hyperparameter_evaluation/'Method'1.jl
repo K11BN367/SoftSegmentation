@@ -342,7 +342,6 @@ function neuralnetwork_training(
                 )
                 =#
                 Micro_Dataloader = DataLoader((temp_input_model_array, temp_output_model_array), batchsize=GPU_Array_Size)
-
                 for (temp_input_model_array, temp_output_model_array) in Micro_Dataloader
                     
                     gpu_temp_input_model_array = temp_input_model_array |> Device

@@ -26,7 +26,7 @@ catch end
 Julia_Worker_Array = []
 Env_Array = ["JULIA_NUM_THREADS" => "auto"]
 
-
+#=
 Julia_Worker_1 = addprocs(
     ["Julia_Worker@143.93.62.171"],
     shell=:wincmd,
@@ -40,7 +40,7 @@ Julia_Worker_1 = addprocs(
 )[1]
 push!(Julia_Worker_Array, Julia_Worker_1)
 println("proc 1 added ", Julia_Worker_1)
-
+=#
 Julia_Worker_2 = addprocs(
     ["Julia_Worker@143.93.52.28"],             
     shell=:wincmd,
@@ -118,6 +118,7 @@ end
     import SoftBase.maximum
     import SoftBase.minimum
     using SoftSegmentation
+
     import Colors
     import Colors.Gray
     import Colors.RGB
@@ -204,7 +205,8 @@ function runtests()
                 yield()
             end
         end
-    end
+    end 
+    
     Path = "//tfiler1.hochschule-trier.de/LAP/Lehre und Forschung/interne Projekte/Laborprojekte/Beckmann/Bilderkennung/FluxNeuralnetwork"
     Input_2_33 = load(joinpath(Path, "../Bilder/2_33/Training/700_Input.png"))
     Output_2_33 = load(joinpath(Path, "../Bilder/2_33/Training/700_Output.png"))
@@ -226,7 +228,7 @@ function runtests()
             return (Input_13_5, Output_13_5)
         end
     end
-    validation_data_tuple = ((Input_2_33, Output_2_33), (Input_5_7, Output_5_7), (Input_9_4, Output_9_4), (Input_13_5, Output_13_5))
+    validation_data_tuple = ((Input_2_33, Output_2_33), (Input_5_7, Output_5_7), (Input_9_4, Output_9_4), (Input_13_5, Output_13_5))       
     execute_user_remote_workload = function (Index, Tuple)
         GPU_Device = gpu_device()
         CPU_Device = cpu_device()
@@ -235,7 +237,7 @@ function runtests()
         Error_Array = c__Array{Float32, 1}()
         Error_Batch_Array = c__Array{Float32, 1}()
         Image_Batch_Array = c__Array{Float32, 1}()
-        Lock = Base.Semaphore(1)
+        #Lock = Base.Semaphore(1)
         logger = function (Error, Batch_Array_Size, Model, Parameters, State, Input_Array, Target_Output_Array)
             local Array_Size = size(Input_Array)[4];
             Index_Update = Index_Update + Array_Size
@@ -250,10 +252,10 @@ function runtests()
                 Index_Update = 0;
             end
             #Test_T = time_ns()
-            
+            #plso("logger")
             #println("acquire Time: ", (time_ns() - Test_T)/10^9)
-            Base.acquire(Lock)
-            @async begin#let Flag = Flag, Current_Output_Array = Current_Output_Array, Input_Array = Input_Array
+            #Base.acquire(Lock)
+            #@async begin#let Flag = Flag, Current_Output_Array = Current_Output_Array, Input_Array = Input_Array
                 for _ in 1:Array_Size
                     Array_Index = Array_Index + 1;
                     push!(Error_Array, Error);
@@ -293,8 +295,8 @@ function runtests()
                         )
                     );
                 end;
-                Base.release(Lock)
-            end
+            #    Base.release(Lock)
+            #end
         end
         return SoftSegmentation.hyperparameter_evaluation(
             GPU_Device,
@@ -305,145 +307,168 @@ function runtests()
             Tuple...
         )
     end
-    load_data = true
-    Surrogate_String = "01082024"
+    function runtests_1()
+        load_data = true
+        Surrogate_String = "01082024"
 
-    function initialize_parameters()
-        if load_data == false
-            parameter_tuple = (
-                [collect(LinRange{Float64}(10^(-0), 10^(-2), 20))...],
-                [collect(1:4:41)...],
-                [collect(1:4:41)...],
-                [collect(1:1:41)...],
-                [collect(LinRange{Float64}(10^(-1), 10^(-0), 30))...],
-                [collect(LinRange{Float64}(10^(-1), 10^(-0), 30))...],
-                [collect(LinRange{Float64}(10^(-1), 10^(-0), 30))...],
-                [collect(LinRange{Float64}(0 * 10^(-2), 5 * 10^(-2), 30))...],
-                [collect(LinRange{Float64}(1.5, 2, 4))...],
-                [collect(2:1:4)...],
-                [collect(3:2:5)...],
-            )
-            plso("parameter_tuple")
-            plso(parameter_tuple)
-            plso(v__(parameter_tuple))
-            save(joinpath(Path,  string("../Surrogate/parameter_Tuple_", Surrogate_String, ".jld2")), "parameter_Tuple", parameter_tuple)
-            return false, parameter_tuple
-        else
-            parameter_tuple = load(joinpath(Path,  string("../Surrogate/parameter_Tuple_", Surrogate_String, ".jld2")))["parameter_Tuple"]
-            
-            plso("parameter_tuple")
-            plso(parameter_tuple)
-            plso(v__(parameter_tuple))
-            unnormalized_x_matrix = load(joinpath(Path, string("../Surrogate/x_matrix_", Surrogate_String, ".jld2")))["x_matrix"]
-            y_vector = load(joinpath(Path, string("../Surrogate/y_vector_", Surrogate_String, ".jld2")))["y_vector"]
-            
-            index_array = sortperm(y_vector)
-            Size = 100
-            #=
-            new_unnormalized_x_matrix = typeof(unnormalized_x_matrix)(undef, size(unnormalized_x_matrix)[1], Size)
-            new_y_vector = typeof(y_vector)(undef, Size)
-            for index = 1:Size
-                new_unnormalized_x_matrix[:, index] = unnormalized_x_matrix[:, index_array[index]]
-                new_y_vector[index] = y_vector[index_array[index]]
+        function initialize_parameters()
+            if load_data == false
+                parameter_tuple = (
+                    [collect(LinRange{Float64}(10^(-0), 10^(-2), 20))...],
+                    [collect(1:4:41)...],
+                    [collect(1:4:41)...],
+                    [collect(1:1:41)...],
+                    [collect(LinRange{Float64}(10^(-1), 10^(-0), 30))...],
+                    [collect(LinRange{Float64}(10^(-1), 10^(-0), 30))...],
+                    [collect(LinRange{Float64}(10^(-1), 10^(-0), 30))...],
+                    [collect(LinRange{Float64}(0 * 10^(-2), 5 * 10^(-2), 30))...],
+                    [collect(LinRange{Float64}(1.5, 2, 4))...],
+                    [collect(2:1:4)...],
+                    [collect(3:2:5)...],
+                )
+                plso("parameter_tuple")
+                plso(parameter_tuple)
+                plso(v__(parameter_tuple))
+                save(joinpath(Path,  string("../Surrogate/parameter_Tuple_", Surrogate_String, ".jld2")), "parameter_Tuple", parameter_tuple)
+                return false, parameter_tuple
+            else
+                parameter_tuple = load(joinpath(Path,  string("../Surrogate/parameter_Tuple_", Surrogate_String, ".jld2")))["parameter_Tuple"]
+                
+                plso("parameter_tuple")
+                plso(parameter_tuple)
+                plso(v__(parameter_tuple))
+                unnormalized_x_matrix = load(joinpath(Path, string("../Surrogate/x_matrix_", Surrogate_String, ".jld2")))["x_matrix"]
+                y_vector = load(joinpath(Path, string("../Surrogate/y_vector_", Surrogate_String, ".jld2")))["y_vector"]
+                
+                index_array = sortperm(y_vector)
+                Size = 100
+                #=
+                new_unnormalized_x_matrix = typeof(unnormalized_x_matrix)(undef, size(unnormalized_x_matrix)[1], Size)
+                new_y_vector = typeof(y_vector)(undef, Size)
+                for index = 1:Size
+                    new_unnormalized_x_matrix[:, index] = unnormalized_x_matrix[:, index_array[index]]
+                    new_y_vector[index] = y_vector[index_array[index]]
+                end
+
+                return true, (parameter_tuple, new_unnormalized_x_matrix, new_y_vector)
+                =#
+                return true, (parameter_tuple, unnormalized_x_matrix, y_vector)
             end
-
-            return true, (parameter_tuple, new_unnormalized_x_matrix, new_y_vector)
-            =#
-            return true, (parameter_tuple, unnormalized_x_matrix, y_vector)
         end
-    end
 
-    function prepare_values(matrix, y_array)
-        #matrix, y_array = get_values(gaussian_process_surrogate)
-        plso(size(matrix))
-        plso(size(y_array))
-        eigen_Values_Vector, eigen_direction_matrix, mean_vector, _1 = SoftSegmentation.principal_component_analysis(matrix)
+        function prepare_values(matrix, y_array)
+            #matrix, y_array = get_values(gaussian_process_surrogate)
+            plso(size(matrix))
+            plso(size(y_array))
+            eigen_Values_Vector, eigen_direction_matrix, mean_vector, _1 = SoftSegmentation.principal_component_analysis(matrix)
 
-        matrix = SoftSegmentation.project_onto_principal_components(matrix, size(matrix)[2], eigen_direction_matrix, mean_vector)
+            matrix = SoftSegmentation.project_onto_principal_components(matrix, size(matrix)[2], eigen_direction_matrix, mean_vector)
 
-        y_maximum = maximum(y_array)
-        y_minimum = minimum(y_array)
-        y_array_length = length(y_array)
-        Color_Array = Array{GLMakie.RGBA{Float64}, 1}(undef, y_array_length)
-        Factor_Array = Array{Float32, 1}(undef, y_array_length)
-        Factor_Array_Minimum = Inf
-        Factor_Array_Maximum = -Inf
-        for index = 1:y_array_length
-            y_value = y_array[index]
-            Factor = (y_value - y_minimum)/(y_maximum - y_minimum)
-            if y_value < Factor_Array_Minimum
-                Factor_Array_Minimum = y_value
+            y_maximum = maximum(y_array)
+            y_minimum = minimum(y_array)
+            y_array_length = length(y_array)
+            Color_Array = Array{GLMakie.RGBA{Float64}, 1}(undef, y_array_length)
+            Factor_Array = Array{Float32, 1}(undef, y_array_length)
+            Factor_Array_Minimum = Inf
+            Factor_Array_Maximum = -Inf
+            for index = 1:y_array_length
+                y_value = y_array[index]
+                Factor = (y_value - y_minimum)/(y_maximum - y_minimum)
+                if y_value < Factor_Array_Minimum
+                    Factor_Array_Minimum = y_value
+                end
+                if y_value > Factor_Array_Maximum
+                    Factor_Array_Maximum = y_value
+                end
+                Factor_Array[index] = Factor
+                Color_Array[index] = GLMakie.RGBA(Factor, 0, 1 - Factor, 0.5)
+                #Color_Array[index] = GLMakie.RGBA((y_value - y_minimum)/(y_maximum - y_minimum), 0, 1 - (y_value - y_minimum)/(y_maximum - y_minimum), 0.5)
             end
-            if y_value > Factor_Array_Maximum
-                Factor_Array_Maximum = y_value
+            return matrix[1, :], matrix[2, :], matrix[3, :], Color_Array, Factor_Array, Factor_Array_Minimum, Factor_Array_Maximum, eigen_Values_Vector
+        end
+        #X1, X2, X3, Color_Array, Factor_Array, Factor_Array_Minimum, Factor_Array_Maximum, Values_Vector = prepare_values(gaussian_process_surrogate)
+        X1 = c__Array{Float32, 1}()
+        X2 = c__Array{Float32, 1}()
+        X3 = c__Array{Float32, 1}()
+        Color_Array = c__Array{GLMakie.RGBA{Float64}, 1}()
+        Factor_Array = c__Array{Float32, 1}(a__Size(1))
+        Factor_Array_Minimum = 0
+        Factor_Array_Maximum = 1
+        Values_Vector = c__Array{Float32, 1}(a__Size(11))
+        X1_Array_Observable = GLMakie.Observable(X1)
+        X2_Array_Observable = GLMakie.Observable(X2)
+        X3_Array_Observable = GLMakie.Observable(X3)
+        Color_Array_Observalbe = GLMakie.Observable(Color_Array)
+        Surrogate_Grid_Layout = GLMakie.GridLayout(figure[1:6, 1:6])
+        Parameter_Axis = GLMakie.Axis3(Surrogate_Grid_Layout[1:4, 1:4], aspect = (1, 1, 1), title = "Parameter Hauptkomponenten Projektion", xlabel = "Hauptkomponente 1", ylabel = "Hauptkomponente 2", zlabel = "Hauptkomponente 3")
+        Value_Axis = GLMakie.Axis(Surrogate_Grid_Layout[5, 1:5], xlabel="Hauptkomponente", ylabel="Betrag", title="Hauptkomponenten Beträge")
+        GLMakie.scatter!(Parameter_Axis, X1_Array_Observable, X2_Array_Observable, X3_Array_Observable, color=Color_Array_Observalbe)
+        GLMakie.limits!(Parameter_Axis, -0.6, 0.6, -0.6, 0.6, -0.6, 0.6)
+
+        Factor_Array_Observable = GLMakie.Observable{Vector{Float32}}(Factor_Array)
+        Extrem_Factor_Array_Observable = GLMakie.Observable{v__Tuple{Vector{Float32}, Vector{String}}}(([0, 1], [string(round(Factor_Array_Minimum, digits=3)), string(round(Factor_Array_Maximum, digits=3))]))
+        Colorbar_Axis = GLMakie.Axis(
+            Surrogate_Grid_Layout[1:4, 5], aspect = 0.2,
+            xgridvisible = false, xticksvisible = false, xminorticksvisible = false, xticklabelsvisible = false,
+            ygridvisible = false, yticksvisible = false, yminorticksvisible = false, yticks=Extrem_Factor_Array_Observable, yaxisposition = :right
+        )
+        GLMakie.Label(Surrogate_Grid_Layout[1:4, 6], "Bewertung", rotation = pi / 2, halign = :center, valign = :center)
+        GLMakie.heatmap!(Colorbar_Axis, 0:1, 0:0.001:1, (_1, y)->(y), colormap = GLMakie.cgrad(ColorSchemes.ColorScheme([GLMakie.RGBf(0.0, 0.0, 1.0), GLMakie.RGBf(1.0, 0.0, 0.0)])))
+        GLMakie.hlines!(Colorbar_Axis, Factor_Array_Observable, color=GLMakie.RGBAf(0.0, 0.0, 0.0, 0.5))
+
+        Values_Observable = GLMakie.Observable(Values_Vector)
+        GLMakie.lines!(Value_Axis, 1:1:length(Values_Vector), Values_Observable, color=GLMakie.RGBA(0, 1, 0, 1.0))
+        GLMakie.scatter!(Value_Axis, 1:1:length(Values_Vector), Values_Observable, color=GLMakie.RGBA(0, 1, 0, 1.0))
+
+        T_Start = time()
+        update_between_workload = function (x_matrix, y_vector, maximum_parameter_tuple)
+            #x_matrix, y_vector = get_values(gaussian_process_surrogate)
+            #Surrogate_String = "01082024_Sparse_2"
+
+            println("save start")
+            save(joinpath(Path, string("../Surrogate/x_matrix_", Surrogate_String, ".jld2")), "x_matrix", x_matrix .* maximum_parameter_tuple)
+            save(joinpath(Path, string("../Surrogate/y_vector_", Surrogate_String, ".jld2")), "y_vector", y_vector)
+            println("save done")
+            #@async begin
+                X1, X2, X3, Color_Array, Factor_Array, Factor_Array_Minimum, Factor_Array_Maximum, Values_Vector = prepare_values(x_matrix, y_vector)
+                X1_Array_Observable.val = X1
+                X2_Array_Observable.val = X2
+                X3_Array_Observable.val = X3
+                Color_Array_Observalbe[] = Color_Array
+                GLMakie.notify(X1_Array_Observable)
+                Factor_Array_Observable[] = Factor_Array
+                Extrem_Factor_Array_Observable[] = ([0, 1], [string(round(Factor_Array_Minimum, digits=3)), string(round(Factor_Array_Maximum, digits=3))])
+                Values_Observable[] = Values_Vector
+                GLMakie.autolimits!(Value_Axis)
+            #end
+            if time() - T_Start > 3600*8.5
+                return false
+            else
+                return true
             end
-            Factor_Array[index] = Factor
-            Color_Array[index] = GLMakie.RGBA(Factor, 0, 1 - Factor, 0.5)
-            #Color_Array[index] = GLMakie.RGBA((y_value - y_minimum)/(y_maximum - y_minimum), 0, 1 - (y_value - y_minimum)/(y_maximum - y_minimum), 0.5)
         end
-        return matrix[1, :], matrix[2, :], matrix[3, :], Color_Array, Factor_Array, Factor_Array_Minimum, Factor_Array_Maximum, eigen_Values_Vector
+        SoftSegmentation.hyperparameter_optimization(Julia_Worker_Array, execute_user_remote_workload, update_between_workload, initialize_parameters)
     end
-    #X1, X2, X3, Color_Array, Factor_Array, Factor_Array_Minimum, Factor_Array_Maximum, Values_Vector = prepare_values(gaussian_process_surrogate)
-    X1 = c__Array{Float32, 1}()
-    X2 = c__Array{Float32, 1}()
-    X3 = c__Array{Float32, 1}()
-    Color_Array = c__Array{GLMakie.RGBA{Float64}, 1}()
-    Factor_Array = c__Array{Float32, 1}(a__Size(1))
-    Factor_Array_Minimum = 0
-    Factor_Array_Maximum = 1
-    Values_Vector = c__Array{Float32, 1}(a__Size(11))
-    X1_Array_Observable = GLMakie.Observable(X1)
-    X2_Array_Observable = GLMakie.Observable(X2)
-    X3_Array_Observable = GLMakie.Observable(X3)
-    Color_Array_Observalbe = GLMakie.Observable(Color_Array)
-    Surrogate_Grid_Layout = GLMakie.GridLayout(figure[1:6, 1:6])
-    Parameter_Axis = GLMakie.Axis3(Surrogate_Grid_Layout[1:4, 1:4], aspect = (1, 1, 1), title = "Parameter Hauptkomponenten Projektion", xlabel = "Hauptkomponente 1", ylabel = "Hauptkomponente 2", zlabel = "Hauptkomponente 3")
-    Value_Axis = GLMakie.Axis(Surrogate_Grid_Layout[5, 1:5], xlabel="Hauptkomponente", ylabel="Betrag", title="Hauptkomponenten Beträge")
-    GLMakie.scatter!(Parameter_Axis, X1_Array_Observable, X2_Array_Observable, X3_Array_Observable, color=Color_Array_Observalbe)
-    GLMakie.limits!(Parameter_Axis, -0.6, 0.6, -0.6, 0.6, -0.6, 0.6)
-
-    Factor_Array_Observable = GLMakie.Observable{Vector{Float32}}(Factor_Array)
-    Extrem_Factor_Array_Observable = GLMakie.Observable{v__Tuple{Vector{Float32}, Vector{String}}}(([0, 1], [string(round(Factor_Array_Minimum, digits=3)), string(round(Factor_Array_Maximum, digits=3))]))
-    Colorbar_Axis = GLMakie.Axis(
-        Surrogate_Grid_Layout[1:4, 5], aspect = 0.2,
-        xgridvisible = false, xticksvisible = false, xminorticksvisible = false, xticklabelsvisible = false,
-        ygridvisible = false, yticksvisible = false, yminorticksvisible = false, yticks=Extrem_Factor_Array_Observable, yaxisposition = :right
-    )
-    GLMakie.Label(Surrogate_Grid_Layout[1:4, 6], "Bewertung", rotation = pi / 2, halign = :center, valign = :center)
-    GLMakie.heatmap!(Colorbar_Axis, 0:1, 0:0.001:1, (_1, y)->(y), colormap = GLMakie.cgrad(ColorSchemes.ColorScheme([GLMakie.RGBf(0.0, 0.0, 1.0), GLMakie.RGBf(1.0, 0.0, 0.0)])))
-    GLMakie.hlines!(Colorbar_Axis, Factor_Array_Observable, color=GLMakie.RGBAf(0.0, 0.0, 0.0, 0.5))
-
-    Values_Observable = GLMakie.Observable(Values_Vector)
-    GLMakie.lines!(Value_Axis, 1:1:length(Values_Vector), Values_Observable, color=GLMakie.RGBA(0, 1, 0, 1.0))
-    GLMakie.scatter!(Value_Axis, 1:1:length(Values_Vector), Values_Observable, color=GLMakie.RGBA(0, 1, 0, 1.0))
-
-    T_Start = time()
-    update_between_workload = function (x_matrix, y_vector, maximum_parameter_tuple)
-        #x_matrix, y_vector = get_values(gaussian_process_surrogate)
-        #Surrogate_String = "01082024_Sparse_2"
-
-        println("save start")
-        save(joinpath(Path, string("../Surrogate/x_matrix_", Surrogate_String, ".jld2")), "x_matrix", x_matrix .* maximum_parameter_tuple)
-        save(joinpath(Path, string("../Surrogate/y_vector_", Surrogate_String, ".jld2")), "y_vector", y_vector)
-        println("save done")
-        #@async begin
-            X1, X2, X3, Color_Array, Factor_Array, Factor_Array_Minimum, Factor_Array_Maximum, Values_Vector = prepare_values(x_matrix, y_vector)
-            X1_Array_Observable.val = X1
-            X2_Array_Observable.val = X2
-            X3_Array_Observable.val = X3
-            Color_Array_Observalbe[] = Color_Array
-            GLMakie.notify(X1_Array_Observable)
-            Factor_Array_Observable[] = Factor_Array
-            Extrem_Factor_Array_Observable[] = ([0, 1], [string(round(Factor_Array_Minimum, digits=3)), string(round(Factor_Array_Maximum, digits=3))])
-            Values_Observable[] = Values_Vector
-            GLMakie.autolimits!(Value_Axis)
-        #end
-        if time() - T_Start > 3600*8.5
-            return false
-        else
-            return true
+    #runtests_1()
+    function runtests_2()
+        execute_user_remote_workload_1 = function (Index)
+            Learning_Rate = 0.895789473684211
+            Batch_Array_Size = 41
+            Iterations = 41
+            Factor = 1
+            Weight_1 = 0.131034482758621
+            Weight_2 = 0.937931034482759
+            Weight_3 = 0.348275862068966
+            Noise = 0.00172413793103448
+            Scale = 1.83333333333333
+            Sample = 4
+            Kernel = 5
+            return execute_user_remote_workload(Index, (Learning_Rate, Batch_Array_Size, Iterations, Factor, Weight_1, Weight_2, Weight_3, Noise, Scale, Sample, Kernel))
         end
+        Worker_Futur_2 = @spawnat(Julia_Worker_2, execute_user_remote_workload_1(Julia_Worker_2))
+        Worker_Futur_3 = @spawnat(Julia_Worker_3, execute_user_remote_workload_1(Julia_Worker_3))
+        fetch.((Worker_Futur_2, Worker_Futur_3))
     end
-    SoftSegmentation.hyperparameter_optimization(Julia_Worker_Array, execute_user_remote_workload, update_between_workload, initialize_parameters)
+    runtests_2()
 end
 runtests()
