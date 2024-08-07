@@ -342,7 +342,7 @@ function neuralnetwork_training(
                 )
                 =#
                 Micro_Dataloader = DataLoader((temp_input_model_array, temp_output_model_array), batchsize=GPU_Array_Size)
-                for (temp_input_model_array, temp_output_model_array) in Micro_Dataloader
+                for (temp_input_model_array::Array{Float32, 4}, temp_output_model_array::Array{Float32, 4}) in Micro_Dataloader
                     
                     gpu_temp_input_model_array = temp_input_model_array |> Device
                     gpu_temp_output_model_array = temp_output_model_array |> Device
@@ -461,6 +461,7 @@ function hyperparameter_evaluation(
             weight_3,
             Noise
         )
+
         Optimization_Error = 0
         for validation_data in validation_data_tuple
             image_size = size(validation_data[1])

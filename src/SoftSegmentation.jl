@@ -55,6 +55,7 @@ module SoftSegmentation
     import MLUtils.DataLoader
     #import CUDA
     import SoftLux.CUDA
+    import InteractiveUtils
     CUDA.set_runtime_version!(v"12.3")
 
     #'Argument'Dependency'Function'Trait'1

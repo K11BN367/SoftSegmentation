@@ -27,6 +27,7 @@ Julia_Worker_Array = []
 Env_Array = ["JULIA_NUM_THREADS" => "auto"]
 
 
+#=
 Julia_Worker_1 = addprocs(
     ["Julia_Worker@143.93.62.171"],
     shell=:wincmd,
@@ -41,6 +42,7 @@ Julia_Worker_1 = addprocs(
 push!(Julia_Worker_Array, Julia_Worker_1)
 println("proc 1 added ", Julia_Worker_1)
 
+
 Julia_Worker_2 = addprocs(
     ["Julia_Worker@143.93.52.28"],             
     shell=:wincmd,
@@ -54,7 +56,7 @@ Julia_Worker_2 = addprocs(
 )[1]
 push!(Julia_Worker_Array, Julia_Worker_2)
 println("proc 2 added ", Julia_Worker_2)
-
+=#
 
 Julia_Worker_3 = addprocs(
     1,
@@ -308,7 +310,7 @@ function runtests()
         )
     end
     function runtests_1()
-        load_data = false
+        load_data = true
         Surrogate_String = "06082024"
 
         function initialize_parameters()
@@ -441,7 +443,7 @@ function runtests()
                 Values_Observable[] = Values_Vector
                 GLMakie.autolimits!(Value_Axis)
             #end
-            if time() - T_Start > 3600*10
+            if time() - T_Start > 3600*4
                 return false
             else
                 return true
