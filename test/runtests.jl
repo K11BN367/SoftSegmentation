@@ -27,7 +27,6 @@ Julia_Worker_Array = []
 Env_Array = ["JULIA_NUM_THREADS" => "auto"]
 
 
-
 Julia_Worker_1 = addprocs(
     ["Julia_Worker@143.93.62.171"],
     shell=:wincmd,
@@ -42,7 +41,7 @@ Julia_Worker_1 = addprocs(
 push!(Julia_Worker_Array, Julia_Worker_1)
 println("proc 1 added ", Julia_Worker_1)
 
-
+#=
 Julia_Worker_2 = addprocs(
     ["Julia_Worker@143.93.52.28"],             
     shell=:wincmd,
@@ -67,7 +66,7 @@ Julia_Worker_3 = addprocs(
 )[1]
 push!(Julia_Worker_Array, Julia_Worker_3)
 println("proc 3 added ", Julia_Worker_3)
-
+=#
 Julia_Worker_Array_Size = size(Julia_Worker_Array)[1]
 
 ##########################################################################################
@@ -428,8 +427,8 @@ function runtests()
             #Surrogate_String = "01082024_Sparse_2"
 
             println("save start")
-            save(joinpath(Path, string("../Surrogate/x_matrix_", Surrogate_String, ".jld2")), "x_matrix", x_matrix .* maximum_parameter_tuple)
-            save(joinpath(Path, string("../Surrogate/y_vector_", Surrogate_String, ".jld2")), "y_vector", y_vector)
+            #save(joinpath(Path, string("../Surrogate/x_matrix_", Surrogate_String, ".jld2")), "x_matrix", x_matrix .* maximum_parameter_tuple)
+            #save(joinpath(Path, string("../Surrogate/y_vector_", Surrogate_String, ".jld2")), "y_vector", y_vector)
             println("save done")
             #@async begin
                 X1, X2, X3, Color_Array, Factor_Array, Factor_Array_Minimum, Factor_Array_Maximum, Values_Vector = prepare_values(x_matrix, y_vector)

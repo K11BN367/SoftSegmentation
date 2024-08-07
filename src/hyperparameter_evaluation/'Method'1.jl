@@ -374,7 +374,7 @@ function neuralnetwork_training(
                     end
                 end
             end
-            if Evaluations > 150000
+            if Evaluations > 1000
                 for _1 = 1:To_Producer_Channel_Array_Size
                     Array_Index, Data = take!(To_Consumer_Channel)
                     put!(To_Producer_Channel_Array[Array_Index], false)
@@ -461,7 +461,25 @@ function hyperparameter_evaluation(
             weight_3,
             Noise
         )
-
+        InteractiveUtils.@code_warntype(
+            Parameters, State, Optimizer = neuralnetwork_training(
+                GPU_Device,
+                model_array_size_tuple,
+                Model,
+                Parameters,
+                Optimizer,
+                State,
+                training_data,
+                logger,
+                Batch_array_size,
+                iterations,
+                factor,
+                weight_1,
+                weight_2,
+                weight_3,
+                Noise
+            )
+        )
         Optimization_Error = 0
         for validation_data in validation_data_tuple
             image_size = size(validation_data[1])
