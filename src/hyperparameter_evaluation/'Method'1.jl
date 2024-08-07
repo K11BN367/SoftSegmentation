@@ -374,17 +374,16 @@ function neuralnetwork_training(
                     end
                 end
             end
-        end
-
-        if Evaluations > 150000
-            for _1 = 1:To_Producer_Channel_Array_Size
-                Array_Index, Data = take!(To_Consumer_Channel)
-                put!(To_Producer_Channel_Array[Array_Index], false)
+            if Evaluations > 150000
+                for _1 = 1:To_Producer_Channel_Array_Size
+                    Array_Index, Data = take!(To_Consumer_Channel)
+                    put!(To_Producer_Channel_Array[Array_Index], false)
+                end
+                println("Time: ", time() - Time)
+                println("Evaluations: ", Evaluations)
+                println("Evaluations/Time: ", Evaluations / (time() - Time))
+                return Parameters, State, Optimizer
             end
-            println("Time: ", time() - Time)
-            println("Evaluations: ", Evaluations)
-            println("Evaluations/Time: ", Evaluations / (time() - Time))
-            return Parameters, State, Optimizer
         end
     end
 end

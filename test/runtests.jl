@@ -26,7 +26,7 @@ catch end
 Julia_Worker_Array = []
 Env_Array = ["JULIA_NUM_THREADS" => "auto"]
 
-#=
+
 Julia_Worker_1 = addprocs(
     ["Julia_Worker@143.93.62.171"],
     shell=:wincmd,
@@ -34,13 +34,13 @@ Julia_Worker_1 = addprocs(
     dir="C:/Users/Julia_Worker",
     env=[
         Env_Array...,
-        "JULIA_CUDA_HARD_MEMORY_LIMIT" => "80%"
+        "JULIA_CUDA_HARD_MEMORY_LIMIT" => "90%"
     ],
     #sshflags="-vvv"
 )[1]
 push!(Julia_Worker_Array, Julia_Worker_1)
 println("proc 1 added ", Julia_Worker_1)
-=#
+
 Julia_Worker_2 = addprocs(
     ["Julia_Worker@143.93.52.28"],             
     shell=:wincmd,
@@ -48,7 +48,7 @@ Julia_Worker_2 = addprocs(
     dir="C:/Users/Julia_Worker",       
     env=[
         Env_Array...,              
-        "JULIA_CUDA_HARD_MEMORY_LIMIT" => "80%"
+        "JULIA_CUDA_HARD_MEMORY_LIMIT" => "90%"
     ],
     #sshflags="-vvv"
 )[1]
@@ -60,7 +60,7 @@ Julia_Worker_3 = addprocs(
     1,
     env=[
         Env_Array...,
-        "JULIA_CUDA_HARD_MEMORY_LIMIT" => "80%"
+        "JULIA_CUDA_HARD_MEMORY_LIMIT" => "90%"
     ]
 )[1]
 push!(Julia_Worker_Array, Julia_Worker_3)
@@ -218,11 +218,11 @@ function runtests()
     Output_13_5 = load(joinpath(Path, "../Bilder/13_5/Training/742_Output.png"))
     training_data = ()->begin
         Rand = rand()
-        if Rand < 0.25
+        if Rand < 0.4
             return (Input_2_33, Output_2_33)
-        elseif Rand < 0.5
+        elseif Rand < 0.7
             return (Input_5_7, Output_5_7)
-        elseif Rand < 0.75
+        elseif Rand < 0.9
             return (Input_9_4, Output_9_4)
         else
             return (Input_13_5, Output_13_5)
@@ -252,7 +252,7 @@ function runtests()
                 Index_Update = 0;
             end
             #Test_T = time_ns()
-            #plso("logger")
+            
             #println("acquire Time: ", (time_ns() - Test_T)/10^9)
             #Base.acquire(Lock)
             #@async begin#let Flag = Flag, Current_Output_Array = Current_Output_Array, Input_Array = Input_Array
@@ -308,21 +308,21 @@ function runtests()
         )
     end
     function runtests_1()
-        load_data = true
-        Surrogate_String = "01082024"
+        load_data = false
+        Surrogate_String = "06082024"
 
         function initialize_parameters()
             if load_data == false
                 parameter_tuple = (
                     [collect(LinRange{Float64}(10^(-0), 10^(-2), 20))...],
-                    [collect(1:4:41)...],
-                    [collect(1:4:41)...],
-                    [collect(1:1:41)...],
-                    [collect(LinRange{Float64}(10^(-1), 10^(-0), 30))...],
-                    [collect(LinRange{Float64}(10^(-1), 10^(-0), 30))...],
-                    [collect(LinRange{Float64}(10^(-1), 10^(-0), 30))...],
-                    [collect(LinRange{Float64}(0 * 10^(-2), 5 * 10^(-2), 30))...],
-                    [collect(LinRange{Float64}(1.5, 2, 4))...],
+                    [collect(1:10:100)...],
+                    [collect(1:10:100)...],
+                    [collect(1:10:100)...],
+                    [collect(LinRange{Float64}(2*10^(-2), 2*10^(-1), 10))...],
+                    [collect(LinRange{Float64}(2*10^(-1), 2*10^(-0), 10))...],
+                    [collect(LinRange{Float64}(2*10^(-2), 2*10^(-1), 10))...],
+                    [collect(LinRange{Float64}(0 * 10^(-2), 5 * 10^(-2), 5))...],
+                    [collect(LinRange{Float64}(1.2, 2, 6))...],
                     [collect(2:1:4)...],
                     [collect(3:2:5)...],
                 )
@@ -441,7 +441,7 @@ function runtests()
                 Values_Observable[] = Values_Vector
                 GLMakie.autolimits!(Value_Axis)
             #end
-            if time() - T_Start > 3600*8.5
+            if time() - T_Start > 3600*10
                 return false
             else
                 return true
@@ -449,12 +449,13 @@ function runtests()
         end
         SoftSegmentation.hyperparameter_optimization(Julia_Worker_Array, execute_user_remote_workload, update_between_workload, initialize_parameters)
     end
-    #runtests_1()
+    runtests_1()
     function runtests_2()
         execute_user_remote_workload_1 = function (Index)
+            #=
             Learning_Rate = 0.895789473684211
             Batch_Array_Size = 41
-            Iterations = 41
+            Iterations = 41/
             Factor = 1
             Weight_1 = 0.131034482758621
             Weight_2 = 0.937931034482759
@@ -463,12 +464,29 @@ function runtests()
             Scale = 1.83333333333333
             Sample = 4
             Kernel = 5
+            =#
+            #0,635263158	9	1	41	0,162068966	1	0,596551724	0	1,833333333	2	3	9,644294217
+            Learning_Rate = 0.635263158
+            Batch_Array_Size = 9
+            Iterations = 1
+            Factor = 41
+            Weight_1 = 0.162068966
+            Weight_2 = 1
+            Weight_3 = 0.596551724
+            Noise = 0
+            Scale = 1.833333333
+            Sample = 2
+            Kernel = 3
+
             return execute_user_remote_workload(Index, (Learning_Rate, Batch_Array_Size, Iterations, Factor, Weight_1, Weight_2, Weight_3, Noise, Scale, Sample, Kernel))
         end
-        Worker_Futur_2 = @spawnat(Julia_Worker_2, execute_user_remote_workload_1(Julia_Worker_2))
-        Worker_Futur_3 = @spawnat(Julia_Worker_3, execute_user_remote_workload_1(Julia_Worker_3))
+        Worker_Futur_2 = @spawnat(Julia_Worker_2, execute_user_remote_workload_1(1))
+        Worker_Futur_3 = @spawnat(Julia_Worker_3, execute_user_remote_workload_1(2))
+
         fetch.((Worker_Futur_2, Worker_Futur_3))
+
+        plso("DONE")
     end
-    runtests_2()
+    #runtests_2()
 end
 runtests()
