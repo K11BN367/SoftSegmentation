@@ -462,7 +462,7 @@ function hyperparameter_evaluation(
             Noise
         )
         InteractiveUtils.@code_warntype(
-            Parameters, State, Optimizer = neuralnetwork_training(
+            neuralnetwork_training(
                 GPU_Device,
                 model_array_size_tuple,
                 Model,
